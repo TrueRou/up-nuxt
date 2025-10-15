@@ -1,4 +1,5 @@
-import type { UserResponse, UserTokenCreateResponse } from '~/def'
+import { CommonResponse } from '~~/shared/types/common';
+import type { UserResponse, UserTokenCreateResponse } from '~~/shared/types/leporid/user'
 
 export default defineEventHandler(async (event) => {
     const { username, password } = await readBody(event);
@@ -35,11 +36,13 @@ export default defineEventHandler(async (event) => {
             }
         })
 
-        return { message: 'Login successful' }
+        return {
+            code: 200,
+            node: 'success',
+            message: null,
+            data: null
+        } as CommonResponse<void>;
     } catch (error) {
-        return sendError(event, createError({
-            statusCode: 401,
-            statusMessage: 'Invalid username or password'
-        }));
+        throw createError(error as Error);
     }
 })
