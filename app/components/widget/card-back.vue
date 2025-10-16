@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useServerStore } from '@/stores/server';
-import type { Image, Preference } from '@/types';
+import type { UserPreference } from '~~/shared/types/profile';
 
 const props = defineProps<{
-    preferences: Preference;
+    preferences: UserPreference;
 }>()
 
 const mask = ref<Image | undefined>(undefined);

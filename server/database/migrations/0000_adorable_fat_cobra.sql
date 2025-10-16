@@ -22,21 +22,22 @@ CREATE TABLE "tbl_account" (
 --> statement-breakpoint
 CREATE TABLE "tbl_preference" (
 	"user_id" integer PRIMARY KEY NOT NULL,
-	"maimai_version" text,
-	"simplified_code" text,
-	"character_name" text,
-	"friend_code" text,
-	"display_name" text,
-	"dx_rating" text,
+	"maimai_version" text DEFAULT '' NOT NULL,
+	"simplified_code" text DEFAULT '' NOT NULL,
+	"character_name" text DEFAULT '' NOT NULL,
+	"friend_code" text DEFAULT '' NOT NULL,
+	"display_name" text DEFAULT '' NOT NULL,
+	"dx_rating" text DEFAULT '' NOT NULL,
 	"qr_size" integer DEFAULT 15 NOT NULL,
 	"mask_type" integer DEFAULT 0 NOT NULL,
 	"chara_info_color" text DEFAULT '#fee37c' NOT NULL,
 	"dynamic_rating" boolean DEFAULT true NOT NULL,
 	"show_date" boolean DEFAULT true NOT NULL,
-	"character_id" text,
-	"background_id" text,
-	"frame_id" text,
-	"passname_id" text
+	"character_id" text NOT NULL,
+	"mask_id" text NOT NULL,
+	"background_id" text NOT NULL,
+	"frame_id" text NOT NULL,
+	"passname_id" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "tbl_rating" (

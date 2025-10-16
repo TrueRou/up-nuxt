@@ -1,59 +1,55 @@
 <script setup lang="ts">
-import { type RouteLocationAsPathGeneric, type RouteLocationAsRelativeGeneric } from 'vue-router';
-import { watch } from 'vue';
-import type { Image, Preference } from '@/types';
+import type { UserProfile } from '~~/shared/types/profile';
 
-const props = defineProps<{
-    preferences: Preference;
-    timeLimit?: string;
-    maimaiCode?: string;
-    settingsRoute?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
-}>()
+const route = useRoute();
+const dateLimit = route.query.date as string | undefined;
+const timeLimit = route.query.time as string | undefined;
+const maimaiMaid = route.query.maid as string | undefined;
 
-const maimaiVersionStore = useMaimaiVersionStore();
+const { data: profile, status, error, refresh, clear } = await useLeporid<UserProfile>("/api/profile")
+const { img } = useUtils()
 
-const r = (image: Image) => import.meta.env.VITE_URL + "/images/" + image!.id;
+const simplifiedCode = computed(() => {
+    if (maimaiMaid) return maimaiMaid.slice(8, 28).match(/.{1,4}/g)?.join(' ')
+})
 
-const applyPreferences = () => {
-    props.preferences.character_name ||= props.preferences.character.name;
-    props.preferences.maimai_version ||= maimaiVersionStore.getCurrentVersion();
-}
-
-watch(() => props.preferences, applyPreferences, { immediate: true });
+const playerRating = computed(() => {
+    // handle dynamic rating display
+    if (profile.value?.preference.dxRating) return profile.value.preference.dxRating
+})
 </script>
 <template>
-    <div class="flex items-center justify-center h-full w-full">
+    <div class="flex items-center justify-center h-full w-full" v-if="profile">
         <div class="flex relative flex-col items-center justify-center h-full">
-            <WidgetCardBack :preferences="preferences" />
+            <WidgetCardBack :preferences="profile.preference" />
             <div class="flex flex-col absolute top-0 w-full h-full">
                 <div class="header-widget flex relative w-full justify-between">
-                    <img class="object-cover w-1/2" :src="r(preferences.passname)">
-                    <WidgetDXRating class="w-1/2" :rating="Number(preferences.dx_rating) || 0" />
+                    <img class="object-cover w-1/2" :src="img(profile.preference.passnameId)" />
+                    <WidgetDxRating class="w-1/2" :rating="playerRating" />
                 </div>
                 <div class="header-widget flex relative w-full flex-row-reverse">
-                    <WidgetPlayerInfo :username="preferences.display_name!" :friend-code="preferences.friend_code!" />
+                    <WidgetPlayerInfo :username="profile.preference.displayName || undefined"
+                        :friend-code="profile.preference.friendCode || undefined" />
                 </div>
             </div>
             <div class="absolute flex flex-col left-0" style="bottom: 8%;">
-                <WidgetCharaInfo :chara="preferences.character_name!" :time="timeLimit || '12:00:00'"
-                    :date="$route.query.date as string" :show-date="preferences.show_date"
-                    :chara-info-color="preferences.chara_info_color" />
+                <WidgetCharaInfo :chara-name="profile.preference.characterName || undefined" :time="timeLimit"
+                    :date="dateLimit" :show-date="profile.preference.showDate"
+                    :chara-info-color="profile.preference.charaInfoColor" />
             </div>
-            <div class="qr-widget absolute" v-if="maimaiCode">
-                <WidgetQRCode :content="maimaiCode" :size="preferences.qr_size || 20" />
+            <div class="qr-widget absolute" v-if="maimaiMaid">
+                <WidgetQrCode :content="maimaiMaid" :size="profile.preference.qrSize || 20" />
             </div>
             <div class="flex absolute bottom-0 items-center justify-center w-full h-8">
                 <div class="footer-widget flex justify-between py-1 rounded-2xl bg-gray-800 text-white opacity-85">
-                    <p class="footer-text font-sega">{{ preferences.simplified_code }}</p>
-                    <p class="footer-text font-sega">{{ preferences.maimai_version }}</p>
+                    <p class="footer-text font-sega">{{ profile.preference.simplifiedCode || simplifiedCode }}</p>
+                    <p class="footer-text font-sega">{{ profile.preference.maimaiVersion }}</p>
                 </div>
-                <template v-if="settingsRoute">
-                    <RouterLink :to="settingsRoute">
-                        <div class="p-1 rounded-full bg-white">
-                            <img src="../assets/misc/settings.svg" style="width: 2vh;"></img>
-                        </div>
-                    </RouterLink>
-                </template>
+                <NuxtLink :to="settingsRoute">
+                    <div class="p-1 rounded-full bg-white">
+                        <img src="../assets/misc/settings.svg" style="width: 2vh;"></img>
+                    </div>
+                </NuxtLink>
             </div>
         </div>
     </div>

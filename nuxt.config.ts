@@ -23,5 +23,15 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     leporidApi: 'http://localhost:8080',
+    leporidDefaultImage: {
+      characterId: 'value',
+      maskId: 'value',
+      backgroundId: 'value',
+      frameId: 'value',
+      passnameId: 'value',
+    },
+    public: {
+      imageApi: 'http://localhost:8080',
+    }
   }
 })

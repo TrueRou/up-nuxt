@@ -1,5 +1,5 @@
 {
-  "id": "262270f2-764d-4dcd-9899-078eb0812de3",
+  "id": "28cc3b4a-9a7a-437e-8800-7e2471bf06ae",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -157,37 +157,43 @@
           "name": "maimai_version",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "simplified_code": {
           "name": "simplified_code",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "character_name": {
           "name": "character_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "friend_code": {
           "name": "friend_code",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "display_name": {
           "name": "display_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "dx_rating": {
           "name": "dx_rating",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "qr_size": {
           "name": "qr_size",
@@ -228,25 +234,31 @@
           "name": "character_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "mask_id": {
+          "name": "mask_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "background_id": {
           "name": "background_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "frame_id": {
           "name": "frame_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "passname_id": {
           "name": "passname_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},

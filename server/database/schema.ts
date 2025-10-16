@@ -14,21 +14,22 @@ export const server = pgTable("tbl_server", {
 
 export const userPreference = pgTable("tbl_preference", {
     user_id: integer("user_id").primaryKey(),
-    maimaiVersion: text("maimai_version"),
-    simplifiedCode: text("simplified_code"),
-    characterName: text("character_name"),
-    friendCode: text("friend_code"),
-    displayName: text("display_name"),
-    dxRating: text("dx_rating"),
+    maimaiVersion: text("maimai_version").notNull().default(""),
+    simplifiedCode: text("simplified_code").notNull().default(""),
+    characterName: text("character_name").notNull().default(""),
+    friendCode: text("friend_code").notNull().default(""),
+    displayName: text("display_name").notNull().default(""),
+    dxRating: text("dx_rating").notNull().default(""),
     qrSize: integer("qr_size").notNull().default(15),
     maskType: integer("mask_type").notNull().default(0),
     charaInfoColor: text("chara_info_color").notNull().default("#fee37c"),
     dynamicRating: boolean("dynamic_rating").notNull().default(true),
     showDate: boolean("show_date").notNull().default(true),
-    characterId: text("character_id"),
-    backgroundId: text("background_id"),
-    frameId: text("frame_id"),
-    passnameId: text("passname_id")
+    characterId: text("character_id").notNull(),
+    maskId: text("mask_id").notNull(),
+    backgroundId: text("background_id").notNull(),
+    frameId: text("frame_id").notNull(),
+    passnameId: text("passname_id").notNull()
 });
 
 export const userRating = pgTable("tbl_rating", {
@@ -40,7 +41,7 @@ export const userRating = pgTable("tbl_rating", {
 export const userAccount = pgTable("tbl_account", {
     id: serial('id').primaryKey(),
     user_id: integer("user_id").notNull(),
-    server_id: integer("server_id").references(() => server.id).notNull(),
+    server_id: integer("server_id").notNull().references(() => server.id),
     credentials: text("credentials").notNull(),
     enabled: boolean("enabled").notNull().default(true),
     created_at: timestamp("created_at").notNull().defaultNow(),
