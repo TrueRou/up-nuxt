@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { UserProfile } from '~~/shared/types/profile';
 
+definePageMeta({ middleware: 'auth' })
+
 const route = useRoute();
 const dateLimit = route.query.date as string | undefined;
 const timeLimit = route.query.time as string | undefined;
@@ -47,7 +49,7 @@ const playerRating = computed(() => {
                 </div>
                 <NuxtLink to="/preference">
                     <div class="p-1 rounded-full bg-white">
-                        <img src="../assets/misc/settings.svg" style="width: 2vh;"></img>
+                        <img src="@/assets/icons/misc/settings.svg" style="width: 2vh;"></img>
                     </div>
                 </NuxtLink>
             </div>

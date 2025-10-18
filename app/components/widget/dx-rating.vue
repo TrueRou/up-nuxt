@@ -20,8 +20,8 @@ const props = defineProps<{
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
-const getNum = (id: string) => new URL(`../assets/rating/num/UI_CMN_Num_26p_${id}.png`, import.meta.url).href;
-const getBase = (id: string) => new URL(`../assets/rating/UI_CMA_Rating_Base_${id}.png`, import.meta.url).href;
+const getNum = (id: string) => new URL(`@/assets/icons/rating/num/UI_CMN_Num_26p_${id}.png`, import.meta.url).href;
+const getBase = (id: string) => new URL(`@/assets/icons/rating/UI_CMA_Rating_Base_${id}.png`, import.meta.url).href;
 
 const countOccurrences = (str: string, searchTerm: string) => {
     let count = 0;

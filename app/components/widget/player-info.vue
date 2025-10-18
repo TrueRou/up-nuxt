@@ -12,7 +12,7 @@ const props = defineProps<{
         v-if="props.username">
         <div class="flex items-center p-[2px]">
             <p class="font-bold font-sega text-[9.5px]">{{ props.username }}</p>
-            <img class="h-[10px]" src="../assets/deluxe.png">
+            <img class="h-[10px]" src="@/assets/icons/misc/deluxe.png">
         </div>
         <div class="flex items-center" v-if="props.friendCode">
             <p class="friend-code-font text-white pl-1 pr-1 text-center rounded-sm text-nowrap font-sega">

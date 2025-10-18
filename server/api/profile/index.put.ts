@@ -1,5 +1,5 @@
 import type { UserProfile } from '~~/shared/types/profile'
-import { commonSuccess, requireUserSession, throwError as throwError } from '../../utils/common'
+import { commonSuccess } from '../../utils/common'
 
 export default defineEventHandler(async (event) => {
     const session = await requireUserSession(event)
@@ -12,25 +12,47 @@ export default defineEventHandler(async (event) => {
         const existingPreference = await db.query.userPreference.findFirst({
             where: eq(tables.userPreference.user_id, userId)
         })
-        if (!existingPreference) {
-            throwError(404, 'not-found', 'Preference not found.')
+        if (existingPreference) {
+            await db.update(tables.userPreference)
+                .set({ ...body.preference })
+                .where(eq(tables.userPreference.user_id, userId))
+        } else {
+            await db.insert(tables.userPreference).values({
+                ...body.preference,
+                user_id: userId
+            })
         }
-        await db.update(tables.userPreference)
-            .set({ ...body.preference })
-            .where(eq(tables.userPreference.user_id, userId))
     }
 
-    // 更新账号
     if (body.accounts) {
         const existingAccounts = await db.query.userAccount.findMany({
             where: eq(tables.userAccount.user_id, userId)
         })
-        for (const existingAccount of existingAccounts) {
-            const updatedAccount = body.accounts.find(acc => acc.id === existingAccount.id)
-            if (updatedAccount) {
+        const existingMap = new Map(existingAccounts.map(account => [account.id, account]))
+        const incomingIds = new Set<number>()
+
+        for (const account of body.accounts) {
+            if (account.id != null) {
+                incomingIds.add(account.id)
+            }
+
+            const existingAccount = account.id != null ? existingMap.get(account.id) : undefined
+            if (existingAccount) {
                 await db.update(tables.userAccount)
-                    .set({ ...updatedAccount })
+                    .set({ ...account })
                     .where(eq(tables.userAccount.id, existingAccount.id))
+            } else {
+                await db.insert(tables.userAccount).values({
+                    ...account,
+                    user_id: userId
+                })
+            }
+        }
+
+        for (const account of existingAccounts) {
+            if (account.id != null && !incomingIds.has(account.id)) {
+                await db.delete(tables.userAccount)
+                    .where(eq(tables.userAccount.id, account.id))
             }
         }
     }
