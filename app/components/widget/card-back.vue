@@ -1,29 +1,21 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
 import type { UserPreference } from '~~/shared/types/profile';
 
 const props = defineProps<{
     preferences: UserPreference;
 }>()
 
-const mask = ref<Image | undefined>(undefined);
-const maskEnabled = computed(() => mask.value !== undefined)
-const r = (image?: Image) => import.meta.env.VITE_URL + "/images/" + image?.id;
+const { img } = useUtils()
 
-if (props.preferences.mask_type !== 0) {
-    const serverStore = useServerStore();
-    const response = await serverStore.axiosInstance.get(`/images/${props.preferences.character.id}/related`);
-    mask.value = (response.data as Image[]).filter(image => image.kind === 'mask').pop();
-}
 </script>
 <template>
-    <img class="h-full object-cover -z-[20]" :src="r(props.preferences.background)">
-    <div v-if="maskEnabled" class="lazer-mask h-full w-full absolute -z-[10]" :style="{ maskImage: `url(${r(mask)})` }">
+    <img class="h-full object-cover -z-[20]" :src="img(props.preferences.backgroundId)">
+    <!-- <div v-if="maskEnabled" class="lazer-mask h-full w-full absolute -z-[10]" :style="{ maskImage: `url(${r(mask)})` }">
         <div class="h-full w-full flow-colorful"></div>
-    </div>
-    <img class="chara-center h-full absolute object-cover -z-[15]" :src="r(props.preferences.character)">
-    <img class="frame-upper h-full absolute -z-[5]" :src="r(props.preferences.frame)">
-    <img class="frame-under h-full absolute -z-[5]" :src="r(props.preferences.frame)">
+    </div> -->
+    <img class="chara-center h-full absolute object-cover -z-[15]" :src="img(props.preferences.characterId)">
+    <img class="frame-upper h-full absolute -z-[5]" :src="img(props.preferences.frameId)">
+    <img class="frame-under h-full absolute -z-[5]" :src="img(props.preferences.frameId)">
 </template>
 <style scoped>
 .frame-upper {

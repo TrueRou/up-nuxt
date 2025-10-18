@@ -1,5 +1,6 @@
 import { joinURL } from 'ufo'
 import { UserTokenCreateResponse } from '~~/shared/types/leporid/user'
+import { readBody, readFormData } from 'h3'
 
 export default defineEventHandler(async (event) => {
     const session = await getUserSession(event)
@@ -47,7 +48,15 @@ export default defineEventHandler(async (event) => {
     const method = event.method
 
     // readBody inside a GET request returns 405 so we have to check request method
-    const body = method !== 'GET' ? await readBody(event) : null
+    let body: any = null
+    if (!['GET', 'HEAD'].includes(method)) {
+        const contentType = (event.headers.get('content-type') || '').toLowerCase()
+        if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
+            body = await readFormData(event)
+        } else {
+            body = await readBody(event)
+        }
+    }
 
     try {
         return await $fetch(target, {
