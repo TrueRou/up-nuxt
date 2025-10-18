@@ -38,7 +38,7 @@ export default defineNuxtConfig({
       passnameId: 'value',
     },
     public: {
-      imageApi: 'http://localhost:8080',
+      imageCdn: 'http://localhost:8080/cdn',
     }
   }
 })

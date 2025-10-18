@@ -9,8 +9,6 @@ const maimaiMaid = route.query.maid as string | undefined;
 const { data: profile, status, error, refresh, clear } = await useLeporid<UserProfile>("/api/profile")
 const { img } = useUtils()
 
-const settingsRoute = computed(() => '/profile')
-
 const simplifiedCode = computed(() => {
     if (maimaiMaid) return maimaiMaid.slice(8, 28).match(/.{1,4}/g)?.join(' ')
 })
@@ -47,7 +45,7 @@ const playerRating = computed(() => {
                     <p class="footer-text font-sega">{{ profile.preference.simplifiedCode || simplifiedCode }}</p>
                     <p class="footer-text font-sega">{{ profile.preference.maimaiVersion }}</p>
                 </div>
-                <NuxtLink :to="settingsRoute">
+                <NuxtLink to="/preference">
                     <div class="p-1 rounded-full bg-white">
                         <img src="../assets/misc/settings.svg" style="width: 2vh;"></img>
                     </div>

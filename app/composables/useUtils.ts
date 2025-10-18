@@ -1,9 +1,10 @@
 import { joinURL } from "ufo"
 
 export const useUtils = () => {
-    const img = (uuid: string) => {
-        const config = useRuntimeConfig()
-        return joinURL(config.public.imageApi as string, uuid)
+    const config = useRuntimeConfig()
+
+    const img = (path: string) => {
+        return joinURL(config.public.imageCdn as string, `${path}`)
     }
 
     const toDBC = (str: string) => {
@@ -20,5 +21,6 @@ export const useUtils = () => {
         }
         return result;
     }
+
     return { img, toDBC }
 }
