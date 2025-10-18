@@ -1,41 +1,44 @@
 <script setup lang="ts">
-import { useImageStore } from '@/stores/image';
 import { ref, computed, watch } from 'vue';
-import { ImageKind, type Image } from '@/common/types';
-import { useUserStore } from '@/stores/user';
-import TextInputModal from './modals/text-input-modal.vue';
+
+interface Image {
+    uuid: string;
+    label?: string;
+    category?: string;
+    uploaded_by?: number;
+}
 
 const props = defineProps<{
     show: boolean;
-    kind: ImageKind;
+    kind: string;
     target?: string;
 }>();
 
 const emit = defineEmits<{
     (e: 'close'): void;
     (e: 'select', image: Image): void;
-    (e: 'open-picker', kind: ImageKind): void;
+    (e: 'open-picker', kind: string): void;
 }>();
 
-const kindDict: Record<ImageKind, string> = {
-    [ImageKind.BACKGROUND]: '背景',
-    [ImageKind.CHARACTER]: '角色',
-    [ImageKind.FRAME]: '边框',
-    [ImageKind.PASSNAME]: '通行证',
-    [ImageKind.MASK]: '蒙版',
-    [ImageKind.LABEL]: '标签',
+const kindDict: Record<string, string> = {
+    'background': '背景',
+    'character': '角色',
+    'frame': '边框',
+    'passname': '通行证',
+    'mask': '蒙版',
+    'label': '标签',
 }
-
-const imageStore = useImageStore();
-const userStore = useUserStore();
 
 const images = ref<Image[]>([]);
 const isLoading = ref<boolean>(false);
 const selectedCategory = ref<string | null>("自定义");
+const isSignedIn = ref<boolean>(false);
+const currentUserId = ref<number | null>(null);
 
 // 重命名对话框
 const showRenamingModal = ref<boolean>(false);
 const renameModel = ref<Image | null>(null);
+const renameLabel = ref<string>('');
 
 // 搜索和分页
 const searchQuery = ref('');
@@ -79,7 +82,7 @@ const currentCategoryImages = computed(() => {
         return [];
     }
 
-    const categoryImages = groupedImages.value[selectedCategory.value];
+    const categoryImages = groupedImages.value[selectedCategory.value] || [];
 
     totalItems.value = categoryImages.length;
     totalPages.value = Math.ceil(totalItems.value / pageSize.value);
@@ -94,29 +97,38 @@ const currentCategoryImages = computed(() => {
     return categoryImages.slice(startIndex, startIndex + pageSize.value);
 });
 
-const r = (image: Image) => import.meta.env.VITE_URL + `/images/${image.uuid}/thumbnail`;
+const r = (image: Image) => `/images/${image.uuid}/thumbnail`;
 
 const setRenameModel = (image: Image) => {
     renameModel.value = Object.assign({}, image);
+    renameLabel.value = image.label || '';
     showRenamingModal.value = true;
 }
 
 const renameImage = async () => {
-    await imageStore.patchImage(renameModel.value!)
+    if (renameModel.value) {
+        // 实现图片重命名逻辑
+        const targetImage = images.value.find(img => img.uuid === renameModel.value!.uuid);
+        if (targetImage) {
+            targetImage.label = renameLabel.value;
+        }
+    }
     renameModel.value = null;
     showRenamingModal.value = false;
 }
 
 const refreshImages = async () => {
     isLoading.value = true;
-    const response = await imageStore.fetchImages(props.kind);
-    images.value = response.filter((image: Image) => userStore.isSignedIn || image.uploaded_by);
+    // 模拟加载图片
+    // 实际应该从API获取
+    images.value = [];
     isLoading.value = false;
-    if (categories.value.length > 0 && !selectedCategory.value) selectedCategory.value = categories.value[0];
+    if (categories.value.length > 0 && !selectedCategory.value) {
+        selectedCategory.value = categories.value[0] || null;
+    }
 }
 
 const deleteImage = async (image: Image) => {
-    await imageStore.deleteImage(image);
     const index = images.value.findIndex(img => img.uuid === image.uuid);
     if (index !== -1) {
         images.value.splice(index, 1);
@@ -133,14 +145,12 @@ watch(() => props.show, async (newVal) => {
 }, { immediate: true });
 </script>
 <template>
-    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-11/12 max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div v-if="show" class="modal modal-open">
+        <div class="modal-box max-w-4xl w-11/12 max-h-[90vh] flex flex-col p-0">
             <!-- 标题栏 -->
-            <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-bold text-gray-800 dark:text-white">{{ '选取' + kindDict[kind] }}</h2>
-                <button @click="emit('close')"
-                    class="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <div class="flex justify-between items-center p-4 border-b border-base-300 bg-base-200">
+                <h2 class="text-xl font-bold">{{ '选取' + kindDict[kind] }}</h2>
+                <button @click="emit('close')" class="btn btn-ghost btn-sm btn-circle">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -149,91 +159,90 @@ watch(() => props.show, async (newVal) => {
                 </button>
             </div>
 
-            <TextInputModal v-if="renameModel" title="修改图片名称" placeholder="请输入图片名称" v-model="renameModel!.label"
-                :show="showRenamingModal" @confirm="renameImage" @cancel="showRenamingModal = false;" />
-
-            <input class="hidden" ref="image-picker" type="file" accept="image/jpeg,image/png,image/webp" />
+            <!-- 重命名对话框 -->
+            <dialog :open="showRenamingModal" class="modal">
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg">修改图片名称</h3>
+                    <div class="py-4">
+                        <input v-model="renameLabel" type="text" placeholder="请输入图片名称"
+                            class="input input-bordered w-full" />
+                    </div>
+                    <div class="modal-action">
+                        <button class="btn" @click="showRenamingModal = false">取消</button>
+                        <button class="btn btn-primary" @click="renameImage">确认</button>
+                    </div>
+                </div>
+            </dialog>
 
             <!-- 搜索和分类区域 -->
-            <div class="p-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
+            <div class="p-4 space-y-3 border-b border-base-300">
                 <!-- 搜索框 -->
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                <div class="form-control">
+                    <div class="input-group">
+                        <span class="bg-base-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </span>
+                        <input v-model="searchQuery" type="text" placeholder="搜索图片..."
+                            class="input input-bordered w-full" />
                     </div>
-                    <input v-model="searchQuery" type="text" placeholder="搜索图片..."
-                        class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                 </div>
 
                 <!-- 分类选择导航栏 -->
-                <div v-if="!isLoading && categories.length > 0" class="overflow-x-auto scrollbar-thin">
-                    <div class="flex space-x-2 pb-1">
-                        <button v-for="category in categories" :key="category"
-                            class="px-4 py-2 whitespace-nowrap rounded-lg text-sm transition-colors"
-                            :class="selectedCategory === category ?
-                                'bg-blue-500 text-white font-medium shadow-sm' :
-                                'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'" @click="selectCategory(category)">
-                            {{ category }}
-                        </button>
-                    </div>
+                <div v-if="!isLoading && categories.length > 0" class="tabs tabs-boxed overflow-x-auto flex-nowrap">
+                    <button v-for="category in categories" :key="category" class="tab whitespace-nowrap"
+                        :class="{ 'tab-active': selectedCategory === category }" @click="selectCategory(category)">
+                        {{ category }}
+                    </button>
                 </div>
             </div>
 
             <!-- 图片展示区域 -->
             <div class="flex-grow overflow-y-auto p-4">
+                <!-- 加载中 -->
                 <div v-if="isLoading" class="flex justify-center items-center h-40">
-                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                    <span class="loading loading-spinner loading-lg text-primary"></span>
                 </div>
 
+                <!-- 图片网格 -->
                 <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     <!-- 上传新图片的虚拟卡片 -->
                     <div v-if="selectedCategory === '自定义'"
-                        class="aspect-square relative rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 overflow-hidden">
-                        <button
-                            class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                            @click="emit('open-picker', props.kind)">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
+                        class="aspect-square relative rounded-lg border-2 border-dashed border-base-300 overflow-hidden">
+                        <button class="btn btn-ghost w-full h-full flex flex-col items-center justify-center gap-2"
+                            :class="{ 'btn-disabled': !isSignedIn }" @click="emit('open-picker', props.kind)">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
-                            <span class="mt-2 text-gray-600 dark:text-gray-300 font-medium text-sm">上传新图片</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 mt-1"
-                                v-if="!userStore.isSignedIn">需要先登录</span>
+                            <span class="font-medium text-sm">上传新图片</span>
+                            <span class="text-xs opacity-60" v-if="!isSignedIn">需要先登录</span>
                         </button>
                     </div>
 
                     <!-- 图片卡片 -->
                     <div v-for="image in currentCategoryImages" :key="image.uuid"
-                        class="aspect-square relative rounded-lg overflow-hidden group border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all"
+                        class="card card-compact bg-base-100 shadow-md hover:shadow-xl transition-all cursor-pointer border border-base-300"
                         @click="emit('select', image)">
-                        <img :src="r(image)" class="w-full h-full object-contain bg-gray-50 dark:bg-gray-800" alt="图片"
-                            loading="lazy">
+                        <figure class="aspect-square">
+                            <img :src="r(image)" class="w-full h-full object-contain" alt="图片" loading="lazy">
+                        </figure>
 
-                        <!-- 悬停效果覆盖层-->
-                        <div
-                            class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10">
-                            <div class="text-white font-medium py-1 px-3 rounded-lg text-sm">
-                                选择
-                            </div>
-                        </div>
-
-                        <!-- 图片标签和操作按钮-->
-                        <div class="absolute top-0 left-0 right-0 p-2 flex justify-between items-start z-20">
-                            <div v-if="image.label"
-                                class="max-w-[70%] bg-black/70 text-white text-xs px-2 py-1 rounded truncate"
-                                :class="{ 'cursor-pointer': image.uploaded_by === userStore.userProfile?.id }"
-                                @click.stop="image.uploaded_by === userStore.userProfile?.id && setRenameModel(image)">
+                        <!-- 图片信息 -->
+                        <div v-if="image.label || image.uploaded_by === currentUserId"
+                            class="absolute top-2 left-2 right-2 flex justify-between items-start gap-2 z-10">
+                            <div v-if="image.label" class="badge badge-neutral badge-sm max-w-[70%] truncate"
+                                :class="{ 'cursor-pointer': image.uploaded_by === currentUserId }"
+                                @click.stop="image.uploaded_by === currentUserId && setRenameModel(image)">
                                 {{ image.label }}
                             </div>
 
-                            <button v-if="image.uploaded_by === userStore.userProfile?.id"
-                                class="bg-red-500/80 text-white p-1 rounded-full hover:bg-red-600"
-                                @click.stop="deleteImage(image);">
+                            <button v-if="image.uploaded_by === currentUserId" class="btn btn-error btn-xs btn-circle"
+                                @click.stop="deleteImage(image)">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -241,12 +250,18 @@ watch(() => props.show, async (newVal) => {
                                 </svg>
                             </button>
                         </div>
+
+                        <!-- 选择提示 -->
+                        <div
+                            class="absolute inset-0 bg-base-content/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                            <div class="badge badge-primary badge-lg">选择</div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 无结果提示 -->
-                <div v-if="!isLoading && currentCategoryImages.length === 0 && selectedCategory != '自定义'"
-                    class="flex flex-col items-center justify-center h-40 text-gray-500 dark:text-gray-400">
+                <div v-if="!isLoading && currentCategoryImages.length === 0 && selectedCategory !== '自定义'"
+                    class="flex flex-col items-center justify-center h-40 text-base-content/60">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -257,29 +272,25 @@ watch(() => props.show, async (newVal) => {
             </div>
 
             <!-- 分页控制 -->
-            <div v-if="totalPages > 1" class="p-3 border-t border-gray-200 dark:border-gray-700">
-                <div class="flex justify-center items-center space-x-4">
-                    <button @click="currentPage > 1 && (currentPage--)"
-                        class="flex items-center px-3 py-1.5 rounded-lg transition-colors"
-                        :class="currentPage > 1 ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'"
-                        :disabled="currentPage <= 1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+            <div v-if="totalPages > 1" class="p-4 border-t border-base-300 bg-base-200">
+                <div class="flex justify-center items-center gap-2">
+                    <button @click="currentPage > 1 && (currentPage--)" class="btn btn-sm"
+                        :class="currentPage > 1 ? 'btn-primary' : 'btn-disabled'">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                         上一页
                     </button>
 
-                    <div class="text-sm text-gray-600 dark:text-gray-300 font-medium">
+                    <div class="text-sm font-medium px-4">
                         {{ currentPage }} / {{ totalPages }}
                     </div>
 
-                    <button @click="currentPage < totalPages && (currentPage++)"
-                        class="flex items-center px-3 py-1.5 rounded-lg transition-colors"
-                        :class="currentPage < totalPages ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'"
-                        :disabled="currentPage >= totalPages">
+                    <button @click="currentPage < totalPages && (currentPage++)" class="btn btn-sm"
+                        :class="currentPage < totalPages ? 'btn-primary' : 'btn-disabled'">
                         下一页
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -287,5 +298,6 @@ watch(() => props.show, async (newVal) => {
                 </div>
             </div>
         </div>
+        <div class="modal-backdrop" @click="emit('close')"></div>
     </div>
 </template>

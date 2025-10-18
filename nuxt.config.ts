@@ -3,6 +3,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['nuxt-auth-utils', '@pinia/nuxt', '@nuxtjs/i18n'],
+  css: ['~/assets/css/main.css'],
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
+  },
   i18n: {
     defaultLocale: 'zh-CN',
     strategy: 'no_prefix',

@@ -9,6 +9,8 @@ const maimaiMaid = route.query.maid as string | undefined;
 const { data: profile, status, error, refresh, clear } = await useLeporid<UserProfile>("/api/profile")
 const { img } = useUtils()
 
+const settingsRoute = computed(() => '/profile')
+
 const simplifiedCode = computed(() => {
     if (maimaiMaid) return maimaiMaid.slice(8, 28).match(/.{1,4}/g)?.join(' ')
 })
