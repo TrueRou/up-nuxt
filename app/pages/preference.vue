@@ -237,66 +237,74 @@ const handleSave = async () => {
                                 <p class="text-sm text-base-content/70">{{ t('sections.preference.subtitle') }}</p>
                             </div>
 
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="form-control">
-                                    <label class="label">
+                            <div class="grid gap-4 md:grid-cols-2 preference-grid">
+                                <div class="form-control preference-field">
+                                    <label class="label preference-field-label">
                                         <span class="label-text">{{ t('fields.displayName.label') }}</span>
                                     </label>
-                                    <input class="input input-bordered" type="text" v-model="preferenceForm.displayName"
+                                    <input class="input input-bordered w-full md:w-[20rem]" type="text"
+                                        v-model="preferenceForm.displayName"
                                         :placeholder="t('fields.displayName.placeholder')">
                                 </div>
 
-                                <div class="form-control">
-                                    <label class="label">
+                                <div class="form-control preference-field">
+                                    <label class="label preference-field-label">
                                         <span class="label-text">{{ t('fields.simplifiedCode.label') }}</span>
                                     </label>
-                                    <input class="input input-bordered" type="text"
+                                    <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.simplifiedCode"
                                         :placeholder="t('fields.simplifiedCode.placeholder')">
                                 </div>
 
-                                <div class="form-control">
-                                    <label class="label">
+                                <div class="form-control preference-field">
+                                    <label class="label preference-field-label">
                                         <span class="label-text">{{ t('fields.friendCode.label') }}</span>
                                     </label>
-                                    <input class="input input-bordered" type="text" v-model="preferenceForm.friendCode"
+                                    <input class="input input-bordered w-full md:w-[20rem]" type="text"
+                                        v-model="preferenceForm.friendCode"
                                         :placeholder="t('fields.friendCode.placeholder')">
                                 </div>
 
-                                <div class="form-control">
-                                    <label class="label">
+                                <div class="form-control preference-field">
+                                    <label class="label preference-field-label">
                                         <span class="label-text">{{ t('fields.characterName.label') }}</span>
                                     </label>
-                                    <input class="input input-bordered" type="text"
+                                    <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.characterName"
                                         :placeholder="t('fields.characterName.placeholder')">
                                 </div>
 
-                                <div class="form-control">
-                                    <label class="label">
+                                <div class="form-control preference-field">
+                                    <label class="label preference-field-label">
                                         <span class="label-text">{{ t('fields.maimaiVersion.label') }}</span>
                                     </label>
-                                    <input class="input input-bordered" type="text"
+                                    <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.maimaiVersion"
                                         :placeholder="t('fields.maimaiVersion.placeholder')">
                                 </div>
 
-                                <div class="form-control">
-                                    <label class="label">
+                                <div class="form-control preference-field">
+                                    <label class="label preference-field-label">
                                         <span class="label-text">{{ t('fields.dxRating.label') }}</span>
                                     </label>
-                                    <input class="input input-bordered" type="text" v-model="preferenceForm.dxRating"
+                                    <input class="input input-bordered w-full md:w-[20rem]" type="text"
+                                        v-model="preferenceForm.dxRating"
                                         :placeholder="t('fields.dxRating.placeholder')">
                                 </div>
-                            </div>
-
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="form-control md:col-span-2">
-                                    <label class="label">
-                                        <span class="label-text">{{ t('fields.qrSize.label') }}</span>
-                                        <span class="label-text-alt text-xs text-base-content/60">{{
-                                            t('fields.qrSize.helper') }}</span>
+                                <div class="form-control preference-field">
+                                    <label class="label preference-field-label">
+                                        <span class="label-text">{{ t('fields.charaInfoColor.label') }}</span>
                                     </label>
+                                    <input class="input input-bordered w-full md:w-[20rem]" type="color"
+                                        v-model="preferenceForm.charaInfoColor">
+                                </div>
+                                <div class="form-control preference-field md:col-span-2">
+                                    <label class="label preference-field-label">
+                                        <span class="label-text">{{ t('fields.qrSize.label') }}</span>
+                                    </label>
+                                    <p class="preference-field-helper text-xs text-base-content/60">
+                                        {{ t('fields.qrSize.helper') }}
+                                    </p>
                                     <div class="flex items-center gap-3">
                                         <input class="range range-primary flex-1" type="range" min="8" max="40"
                                             v-model.number="preferenceForm.qrSize">
@@ -304,23 +312,33 @@ const handleSave = async () => {
                                             t('fields.qrSize.unit') }}</span>
                                     </div>
                                 </div>
+                            </div>
 
+                            <div class="grid gap-4 md:grid-cols-2">
                                 <div class="form-control">
-                                    <label class="label">
-                                        <span class="label-text">{{ t('fields.maskType.label') }}</span>
-                                        <span class="label-text-alt text-xs text-base-content/60">{{
-                                            t('fields.maskType.helper') }}</span>
-                                    </label>
-                                    <input class="input input-bordered" type="number" min="0"
-                                        v-model.number="preferenceForm.maskType">
+                                    <div
+                                        class="flex items-center justify-between gap-4 rounded-lg border border-base-200 bg-base-200/40 px-4 py-3">
+                                        <div>
+                                            <p class="font-medium text-sm">{{ t('fields.dynamicRating.label') }}</p>
+                                            <p class="text-xs text-base-content/70">{{ t('fields.dynamicRating.helper')
+                                                }}</p>
+                                        </div>
+                                        <input class="toggle toggle-primary" type="checkbox"
+                                            v-model="preferenceForm.dynamicRating">
+                                    </div>
                                 </div>
 
                                 <div class="form-control">
-                                    <label class="label">
-                                        <span class="label-text">{{ t('fields.charaInfoColor.label') }}</span>
-                                    </label>
-                                    <input class="input input-bordered h-12" type="color"
-                                        v-model="preferenceForm.charaInfoColor">
+                                    <div
+                                        class="flex items-center justify-between gap-4 rounded-lg border border-base-200 bg-base-200/40 px-4 py-3">
+                                        <div>
+                                            <p class="font-medium text-sm">{{ t('fields.showDate.label') }}</p>
+                                            <p class="text-xs text-base-content/70">{{ t('fields.showDate.helper') }}
+                                            </p>
+                                        </div>
+                                        <input class="toggle toggle-primary" type="checkbox"
+                                            v-model="preferenceForm.showDate">
+                                    </div>
                                 </div>
                             </div>
 
@@ -349,34 +367,6 @@ const handleSave = async () => {
                                                 </button>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="form-control">
-                                    <div
-                                        class="flex items-center justify-between gap-4 rounded-lg border border-base-200 bg-base-200/40 px-4 py-3">
-                                        <div>
-                                            <p class="font-medium text-sm">{{ t('fields.dynamicRating.label') }}</p>
-                                            <p class="text-xs text-base-content/70">{{ t('fields.dynamicRating.helper')
-                                            }}</p>
-                                        </div>
-                                        <input class="toggle toggle-primary" type="checkbox"
-                                            v-model="preferenceForm.dynamicRating">
-                                    </div>
-                                </div>
-
-                                <div class="form-control">
-                                    <div
-                                        class="flex items-center justify-between gap-4 rounded-lg border border-base-200 bg-base-200/40 px-4 py-3">
-                                        <div>
-                                            <p class="font-medium text-sm">{{ t('fields.showDate.label') }}</p>
-                                            <p class="text-xs text-base-content/70">{{ t('fields.showDate.helper') }}
-                                            </p>
-                                        </div>
-                                        <input class="toggle toggle-primary" type="checkbox"
-                                            v-model="preferenceForm.showDate">
                                     </div>
                                 </div>
                             </div>
@@ -498,6 +488,30 @@ const handleSave = async () => {
         :confirm-label="selectorConfirmLabel" @update:open="handleSelectorVisibility" @select="handleImageSelect" />
 </template>
 
+<style scoped>
+.preference-grid {
+    align-items: stretch;
+}
+
+.preference-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+}
+
+.preference-field-label {
+    display: flex;
+    align-items: flex-start;
+    padding: 0;
+    gap: 0.25rem;
+}
+
+.preference-field-helper {
+    margin-top: -0.25rem;
+}
+</style>
+
 <i18n lang="yaml">
 zh-CN:
   loading:
@@ -534,9 +548,6 @@ zh-CN:
       label: 二维码尺寸
       helper: 调整展示在卡面上的二维码大小。
       unit: px
-    maskType:
-      label: 遮罩类型
-      helper: 使用系统提供的遮罩编号。
     charaInfoColor:
       label: 角色信息颜色
     dynamicRating:
