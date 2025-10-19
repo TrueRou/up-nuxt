@@ -5,8 +5,10 @@ import * as schema from '../database/schema'
 
 export const tables = schema
 
+const config = useRuntimeConfig()
+
 export function useDrizzle() {
-    return drizzle(process.env.DATABASE_URL || "", { schema })
+    return drizzle(config.databaseUrl || "", { schema })
 }
 
 export type Server = typeof schema.server.$inferSelect

@@ -21,10 +21,12 @@
                         </div>
                         <div v-else class="space-y-3">
                             <div class="rounded-lg border overflow-hidden">
-                                <VueCropper ref="cropperRef" :img="previewUrl" :autoCrop="true" :fixed="true"
-                                    :fixedNumber="cropRatio" :centerBox="true" :autoCropWidth="cropBox.width"
-                                    :autoCropHeight="cropBox.height" :full="true" :canScale="true"
-                                    class="h-[320px] w-full" />
+                                <ClientOnly>
+                                    <VueCropper ref="cropperRef" :img="previewUrl" :autoCrop="true" :fixed="true"
+                                        :fixedNumber="cropRatio" :centerBox="true" :autoCropWidth="cropBox.width"
+                                        :autoCropHeight="cropBox.height" :full="true" :canScale="true"
+                                        class="h-[320px] w-full" />
+                                </ClientOnly>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <button class="btn btn-sm" type="button" @click="rotateLeft">⟲ {{ t('rotate-left')
@@ -97,8 +99,8 @@
 
 <script setup lang="ts">
 import { nextTick, computed, reactive, ref, watch } from 'vue'
+import type { VueCropper } from 'vue-cropper';
 import { useI18n } from 'vue-i18n'
-import { VueCropper } from 'vue-cropper'
 import type { ImageAspect, ImageResponse } from '~~/shared/types/image'
 import { ImageVisibility } from '~~/shared/types/image'
 

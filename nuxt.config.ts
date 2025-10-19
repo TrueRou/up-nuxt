@@ -23,16 +23,17 @@ export default defineNuxtConfig({
     ]
   },
   runtimeConfig: {
+    databaseUrl: 'postgresql://root:password@localhost:5432/usagipass',
     leporidApi: 'http://localhost:8080',
     leporidDefaultImage: {
-      characterId: 'value',
-      maskId: 'value',
-      backgroundId: 'value',
-      frameId: 'value',
-      passnameId: 'value',
+      characterId: '2e7046aa-ddc2-40fb-bf5d-5236ffca50f9',
+      maskId: '421943e9-2221-45f1-8f76-5a1ca012028e',
+      backgroundId: '6a742fd3-f9e2-4edf-ab65-9208fae30d36',
+      frameId: '421943e9-2221-45f1-8f76-5a1ca012028e',
+      passnameId: 'f6988add-bb65-4b78-a69c-7d01c453d4a8',
     },
     public: {
-      imageCdn: 'http://localhost:8080/cdn',
+      imageCdn: 'https://uc.turou.fun/api/images',
     }
   }
 })
