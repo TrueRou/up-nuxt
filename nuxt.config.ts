@@ -1,9 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from "@tailwindcss/vite";
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['nuxt-auth-utils', '@pinia/nuxt', '@nuxtjs/i18n', '@nuxtjs/tailwindcss'],
-  tailwindcss: { exposeConfig: true },
+  modules: ['nuxt-auth-utils', '@pinia/nuxt', '@nuxtjs/i18n'],
+  css: ['~/assets/css/main.css'],
+  vite: {
+    plugins: [
+      tailwindcss(),
+    ],
+  },
   i18n: {
     defaultLocale: 'zh-CN',
     strategy: 'no_prefix',

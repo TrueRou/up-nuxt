@@ -81,11 +81,12 @@ watch(servers, (list) => {
 }, { immediate: true })
 
 type ImageFieldKey = 'character' | 'mask' | 'background' | 'frame' | 'passname'
+type ImageFieldName = 'characterId' | 'maskId' | 'backgroundId' | 'frameId' | 'passnameId'
 
 const imageTarget = ref<ImageFieldKey | null>(null)
 const selectorOpen = ref(false)
 
-const imageFieldMap: Record<ImageFieldKey, keyof PreferenceForm> = {
+const imageFieldMap: Record<ImageFieldKey, ImageFieldName> = {
     character: 'characterId',
     mask: 'maskId',
     background: 'backgroundId',
@@ -134,6 +135,17 @@ const selectorConfirmLabel = computed(() => t('actions.use-image'))
 
 const imageAspectId = computed(() => imageTarget.value ? aspectMap[imageTarget.value] : '')
 
+const imageCardItems = computed(() => imageKeys.map((key) => {
+    const field = imageFieldMap[key]
+    const raw = preferenceForm[field] as string | undefined
+    return {
+        key,
+        field,
+        src: raw ? img(raw) : '',
+        selected: Boolean(raw),
+    }
+}))
+
 const imagePreviewItems = computed(() => {
     const order: ImageFieldKey[] = ['background', 'character', 'frame', 'mask', 'passname']
     return order.map((key) => {
@@ -143,7 +155,8 @@ const imagePreviewItems = computed(() => {
             key,
             label: t(`preview.labels.${key}`),
             src: raw ? img(raw) : '',
-            raw,
+            selected: Boolean(raw),
+            status: raw ? t('preview.status.assigned') : t('preview.status.empty'),
         }
     })
 })
@@ -174,7 +187,7 @@ const handleSave = async () => {
     }
     saving.value = true
     try {
-        const payload: UserProfile = {
+        const payload = {
             preference: { ...preferenceForm },
             accounts: accounts.value.map((account) => ({
                 id: account.id,
@@ -210,11 +223,6 @@ const handleSave = async () => {
 <template>
     <div class="min-h-screen bg-base-200">
         <div class="mx-auto w-full max-w-6xl px-4 py-8 lg:py-10">
-            <header class="space-y-2">
-                <h1 class="text-3xl font-bold">{{ t('page-title') }}</h1>
-                <p class="text-base-content/70">{{ t('page-subtitle') }}</p>
-            </header>
-
             <div v-if="isInitialLoading" class="flex flex-col items-center gap-4 py-16 text-base-content/60">
                 <span class="loading loading-spinner loading-lg"></span>
                 <p>{{ t('loading.initial') }}</p>
@@ -319,14 +327,28 @@ const handleSave = async () => {
                             <div class="divider my-2">{{ t('sections.preference.images') }}</div>
 
                             <div class="grid gap-6 md:grid-cols-2">
-                                <div v-for="key in imageKeys" :key="key" class="space-y-2">
-                                    <p class="text-sm font-medium">{{ t(`images.${key}.label`) }}</p>
-                                    <div class="flex items-center gap-2">
-                                        <input class="input input-bordered flex-1" type="text"
-                                            :value="preferenceForm[imageFieldMap[key]]" readonly>
-                                        <button class="btn btn-outline" type="button" @click="openImageSelector(key)">
-                                            {{ t('actions.choose-image') }}
-                                        </button>
+                                <div v-for="item in imageCardItems" :key="item.key"
+                                    class="rounded-xl border border-base-200 bg-base-200/40 p-4">
+                                    <div class="flex items-start gap-3">
+                                        <div
+                                            class="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border border-base-200 bg-base-100">
+                                            <img v-if="item.src" :src="item.src" :alt="t(`images.${item.key}.label`)"
+                                                class="h-full w-full object-cover" loading="lazy">
+                                            <span v-else class="text-xs text-base-content/40">{{
+                                                t('preview.empty') }}</span>
+                                        </div>
+                                        <div class="flex-1 space-y-1">
+                                            <p class="text-sm font-semibold">{{ t(`images.${item.key}.label`) }}</p>
+                                            <p class="text-xs text-base-content/60">{{ t(`images.${item.key}.helper`) }}
+                                            </p>
+                                            <div class="flex flex-wrap gap-2 pt-1">
+                                                <button class="btn btn-sm" type="button"
+                                                    @click="openImageSelector(item.key)">
+                                                    {{ item.selected ? t('actions.replace-image') :
+                                                        t('actions.choose-image') }}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -338,7 +360,7 @@ const handleSave = async () => {
                                         <div>
                                             <p class="font-medium text-sm">{{ t('fields.dynamicRating.label') }}</p>
                                             <p class="text-xs text-base-content/70">{{ t('fields.dynamicRating.helper')
-                                                }}</p>
+                                            }}</p>
                                         </div>
                                         <input class="toggle toggle-primary" type="checkbox"
                                             v-model="preferenceForm.dynamicRating">
@@ -360,31 +382,6 @@ const handleSave = async () => {
                             </div>
                         </div>
                     </div>
-
-                    <aside class="card bg-base-100 shadow-md">
-                        <div class="card-body space-y-4">
-                            <div>
-                                <h2 class="card-title text-xl">{{ t('sections.preview.title') }}</h2>
-                                <p class="text-sm text-base-content/70">{{ t('sections.preview.subtitle') }}</p>
-                            </div>
-                            <div class="space-y-4">
-                                <div v-for="item in imagePreviewItems" :key="item.key" class="flex items-center gap-4">
-                                    <div
-                                        class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-base-200 shadow-inner">
-                                        <img v-if="item.src" :src="item.src" :alt="item.label"
-                                            class="h-full w-full object-cover" loading="lazy">
-                                        <span v-else class="px-2 text-center text-xs text-base-content/50">{{
-                                            t('preview.empty') }}</span>
-                                    </div>
-                                    <div class="min-w-0 flex-1">
-                                        <p class="text-sm font-medium">{{ item.label }}</p>
-                                        <p class="truncate text-xs text-base-content/60">{{ item.raw ||
-                                            t('preview.placeholder') }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
                 </section>
 
                 <section class="card bg-base-100 shadow-md">
@@ -502,108 +499,7 @@ const handleSave = async () => {
 </template>
 
 <i18n lang="yaml">
-en-GB:
-  page-title: Profile preferences
-  page-subtitle: Adjust your display layout and manage linked accounts.
-  loading:
-    initial: Loading your profile...
-  sections:
-    preference:
-      title: Display preferences
-      subtitle: Customize how your profile card looks.
-      images: Image resources
-    preview:
-      title: Quick preview
-      subtitle: A compact look at the images you've selected.
-    accounts:
-      title: Linked accounts
-      subtitle: Update the list locally and save when you're ready.
-      tips-link: View setup guide
-  fields:
-    displayName:
-      label: Display name
-      placeholder: Enter display name
-    simplifiedCode:
-      label: Simplified code
-      placeholder: Enter simplified code
-    friendCode:
-      label: Friend code
-      placeholder: Enter friend code
-    characterName:
-      label: Character name
-      placeholder: Enter character name
-    maimaiVersion:
-      label: Maimai version
-      placeholder: Enter maimai version
-    dxRating:
-      label: DX rating
-      placeholder: Enter DX rating
-    qrSize:
-      label: QR code size
-      helper: Adjust how large the QR code appears on your card.
-      unit: px
-    maskType:
-      label: Mask type
-      helper: Provide the numeric mask identifier from your assets.
-    charaInfoColor:
-      label: Character info color
-    dynamicRating:
-      label: Auto update rating
-      helper: When enabled, the rating will refresh whenever new data is available.
-    showDate:
-      label: Show date
-      helper: Toggle to show or hide the date on the card.
-    account:
-      server: Select server
-      credentials: Account credentials
-  images:
-    title-default: Select an image
-    character:
-      label: Character illustration
-      title: Choose character illustration
-    mask:
-      label: Mask overlay
-      title: Choose mask overlay
-    background:
-      label: Background
-      title: Choose background
-    frame:
-      label: Frame
-      title: Choose frame
-    passname:
-      label: Pass name banner
-      title: Choose pass name banner
-  preview:
-    labels:
-      background: Background
-      character: Character
-      frame: Frame
-      mask: Mask
-      passname: Pass name
-    empty: Not set
-    placeholder: Select an image to preview
-  actions:
-    choose-image: Select image
-    add-account: Add account
-    remove-account: Remove
-    use-image: Use this image
-    save: Save changes
-  accounts:
-    empty: No accounts yet. Add one to get started.
-    enabled: Enabled
-    fallback-name: Pending server
-    fallback-desc: Choose a server to view details.
-  toast:
-    save-success: Preferences updated successfully.
-    account-invalid: Please complete the server and credentials for every account before saving.
-  errors:
-    account:
-      server: Please choose a server.
-      credentials: Credentials cannot be empty.
-
 zh-CN:
-  page-title: 偏好设置
-  page-subtitle: 调整展示样式并管理已绑定的账号。
   loading:
     initial: 正在加载个人资料...
   sections:
@@ -611,9 +507,6 @@ zh-CN:
       title: 个性化设置
       subtitle: 配置用户卡面的展示效果。
       images: 图片资源
-    preview:
-      title: 图片预览
-      subtitle: 快速查看当前选择的图片。
     accounts:
       title: 账号管理
       subtitle: 可在本地自由编辑，最终一次性保存。
@@ -655,38 +548,42 @@ zh-CN:
     account:
       server: 选择服务器
       credentials: 账号凭据
-  images:
-    title-default: 选择图片
-    character:
-      label: 角色立绘
-      title: 选择角色立绘
-    mask:
-      label: 遮罩图层
-      title: 选择遮罩图层
-    background:
-      label: 背景
-      title: 选择背景
-    frame:
-      label: 边框
-      title: 选择边框
-    passname:
-      label: 名牌横幅
-      title: 选择名牌横幅
-  preview:
-    labels:
-      background: 背景
-      character: 角色
-      frame: 边框
-      mask: 遮罩
-      passname: 名牌
-    empty: 暂未选择
-    placeholder: 选择图片后将显示路径
-  actions:
-    choose-image: 选择图片
-    add-account: 新增账号
-    remove-account: 删除
-    use-image: 使用该图片
-    save: 保存修改
+    images:
+        title-default: 选择图片
+        character:
+            label: 角色立绘
+            title: 选择角色立绘
+            helper: 卡面正面展示的角色形象。
+        mask:
+            label: 遮罩图层
+            title: 选择遮罩图层
+            helper: 覆盖在立绘上的装饰或遮挡层。
+        background:
+            label: 背景
+            title: 选择背景
+            helper: 角色背后展示的背景。
+        frame:
+            label: 边框
+            title: 选择边框
+            helper: 包裹卡面的装饰框体。
+        passname:
+            label: 名牌横幅
+            title: 选择名牌横幅
+            helper: 卡片底部显示名牌的横幅。
+        empty: 暂未选择
+        placeholder: 选择图片后将显示路径
+        status:
+            assigned: 已选中的图片将用于卡面。
+            empty: 尚未选择图片。
+            badge: 已启用
+    actions:
+        choose-image: 选择图片
+        replace-image: 更换图片
+        clear-image: 清除选择
+        add-account: 新增账号
+        remove-account: 删除
+        use-image: 使用该图片
+        save: 保存修改
   accounts:
     empty: 暂无账号，请先新增一个。
     enabled: 启用
