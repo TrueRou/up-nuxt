@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ middleware: 'require-login' })
 
 const route = useRoute();
 const dateLimit = route.query.date as string | undefined;

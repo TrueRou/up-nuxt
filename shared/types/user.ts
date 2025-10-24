@@ -1,12 +1,4 @@
 /**
- * 用户权限枚举
- */
-export enum UserPrivilege {
-    NORMAL = 'NORMAL',
-    ADMIN = 'ADMIN'
-}
-
-/**
  * 用户注册请求
  */
 export interface UserRegisterRequest {
@@ -36,9 +28,9 @@ export interface UserResponse {
     id: number
     /** 用户名 */
     username: string
-    /** 手机号 */
-    phone: string
+    /** 邮箱 */
+    email: string
     /** 用户权限 */
-    privileges: UserPrivilege[]
+    permissions: string[]
 }
 

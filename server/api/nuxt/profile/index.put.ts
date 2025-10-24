@@ -1,6 +1,5 @@
 export default defineEventHandler(async (event) => {
-    const session = await requireUserSession(event)
-    const userId = (session.user as NonNullable<typeof session.user>).id
+    const userId = (await useUser(event)).id
     const db = useDrizzle()
     const body = await readBody<UserProfile>(event)
 

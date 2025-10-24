@@ -42,11 +42,11 @@ import { z } from 'zod'
 import type { UserLoginRequest } from '~~/shared/types/leporid/user'
 
 const { t } = useI18n()
-const { loggedIn, fetch: fetchNuxtUser } = useUserSession()
+const authStore = useAuthStore()
 
 // Redirect if already logged in
 watchEffect(() => {
-    if (loggedIn.value) {
+    if (authStore.isAuthenticated) {
         navigateTo('/')
     }
 })
@@ -75,8 +75,7 @@ const handleLogin = async () => {
         successMessage: t('login-success')
     })
 
-    await useNuxtApp().$leporid('/api/nuxt/session') // 触发 Nuxt 用户更新
-    await fetchNuxtUser() // 拉取最新 Nuxt 用户信息
+    await authStore.fetch()
     await navigateTo('/')
 }
 

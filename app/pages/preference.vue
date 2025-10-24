@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ImageResponse } from '~~/shared/types/leporid/image'
 
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ middleware: 'require-login' })
 
 const { t } = useI18n()
 const { img } = useUtils()
