@@ -1,5 +1,5 @@
 import { computed, ref, shallowRef } from 'vue'
-import type { ImageAspect, ImageResponse, ImageSearchResponse, ImageUpdateRequest } from '~~/shared/types/image'
+import type { ImageAspect, ImageResponse, ImageSearchResponse, ImageUpdateRequest } from '~~/shared/types/leporid/image'
 
 interface UseImagesOptions {
     aspectId: string

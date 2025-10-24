@@ -101,8 +101,8 @@
 import { nextTick, computed, reactive, ref, watch } from 'vue'
 import type { VueCropper } from 'vue-cropper';
 import { useI18n } from 'vue-i18n'
-import type { ImageAspect, ImageResponse } from '~~/shared/types/image'
-import { ImageVisibility } from '~~/shared/types/image'
+import type { ImageAspect, ImageResponse } from '~~/shared/types/leporid/image'
+import { ImageVisibility } from '~~/shared/types/leporid/image'
 
 const props = defineProps<{
     open: boolean

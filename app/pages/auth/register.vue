@@ -12,14 +12,14 @@
                 </p>
             </div>
 
-            <!-- <div>
-                <label class="block text-sm font-medium mb-2">{{ t('phone') }}</label>
-                <input v-model="form.phone" type="tel" :placeholder="t('phone-placeholder')"
-                    class="input input-bordered w-full" :class="{ 'input-error': hasFieldError('phone') }" />
-                <p v-if="hasFieldError('phone')" class="text-error text-sm mt-1">
-                    {{ getFieldError('phone') }}
+            <div>
+                <label class="block text-sm font-medium mb-2">{{ t('email') }}</label>
+                <input v-model="form.email" type="email" :placeholder="t('email-placeholder')"
+                    class="input input-bordered w-full" :class="{ 'input-error': ve('email') }" />
+                <p v-if="ve('email')" class="text-error text-sm mt-1">
+                    {{ ve('email') }}
                 </p>
-            </div> -->
+            </div>
 
             <div>
                 <label class="block text-sm font-medium mb-2">{{ t('password') }}</label>
@@ -60,11 +60,11 @@ import { z } from 'zod'
 import type { UserRegisterRequest } from '~~/shared/types/leporid/user'
 
 const { t } = useI18n()
-const { loggedIn } = useUserSession()
+const { loggedIn, fetch: fetchNuxtUser } = useUserSession()
 
 // Redirect if already logged in
 watchEffect(() => {
-    if (loggedIn.value) {
+    if (loggedIn) {
         navigateTo('/')
     }
 })
@@ -77,7 +77,7 @@ interface RegisterForm extends UserRegisterRequest {
 // Zod schema for validation
 const registerSchema = z.object({
     username: z.string().min(3, t('username-min-length')),
-    phone: z.string().optional(),
+    email: z.email(),
     password: z.string().min(6, t('password-min-length')),
     confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
@@ -87,7 +87,7 @@ const registerSchema = z.object({
 
 const form = reactive<RegisterForm>({
     username: '',
-    phone: undefined,
+    email: '',
     password: '',
     confirmPassword: ''
 })
@@ -100,7 +100,7 @@ const handleRegister = async () => {
     const requestData: UserRegisterRequest = {
         username: form.username,
         password: form.password,
-        phone: form.phone
+        email: form.email
     }
 
     await useNuxtApp().$leporid('/api/auth/register', {
@@ -110,7 +110,9 @@ const handleRegister = async () => {
         successMessage: t('register-success')
     })
 
-    navigateTo('/auth/login')
+    await useNuxtApp().$leporid('/api/nuxt/session') // 触发 Nuxt 用户更新
+    await fetchNuxtUser() // 拉取最新 Nuxt 用户信息
+    await navigateTo('/')
 }
 
 useHead({
@@ -119,53 +121,37 @@ useHead({
 </script>
 
 <i18n lang="yaml">
-en-GB:
-  register: Register
-  username: Username
-  phone: Phone Number
-  password: Password
-  confirm-password: Confirm Password
-  username-placeholder: Enter your username
-  phone-placeholder: Enter your phone number
-  password-placeholder: Enter your password
-  confirm-password-placeholder: Confirm your password
-  username-required: Username is required
-  username-min-length: Username must be at least 3 characters
-  phone-required: Phone number is required
-  phone-invalid: Please enter a valid phone number
-  password-required: Password is required
-  password-min-length: Password must be at least 6 characters
-  confirm-password-required: Please confirm your password
-  password-mismatch: Passwords do not match
-  registering: Registering...
-  register-failed: Registration failed. Please try again.
-  register-success: Registration successful!
-  or: OR
-  have-account: Already have an account?
-  login: Login
+en_GB:
+    register: "Register"
+    username: "Username"
+    username-placeholder: "Enter your username"
+    username-min-length: "Username must be at least 3 characters"
+    email: "Email"
+    email-placeholder: "Enter your email"
+    password: "Password"
+    password-placeholder: "Enter your password"
+    password-min-length: "Password must be at least 6 characters"
+    confirm-password: "Confirm password"
+    confirm-password-placeholder: "Re-enter your password"
+    password-mismatch: "Passwords do not match"
+    register-success: "Registration successful"
+    have-account: "Already have an account?"
+    login: "Log in"
 
-zh-CN:
-  register: 注册
-  username: 用户名
-  phone: 手机号
-  password: 密码
-  confirm-password: 确认密码
-  username-placeholder: 请输入用户名
-  phone-placeholder: 请输入手机号
-  password-placeholder: 请输入密码
-  confirm-password-placeholder: 请确认密码
-  username-required: 用户名不能为空
-  username-min-length: 用户名至少需要3个字符
-  phone-required: 手机号不能为空
-  phone-invalid: 请输入有效的手机号
-  password-required: 密码不能为空
-  password-min-length: 密码至少需要6个字符
-  confirm-password-required: 请确认密码
-  password-mismatch: 两次输入的密码不一致
-  registering: 注册中...
-  register-failed: 注册失败，请重试。
-  register-success: 注册成功！
-  or: 或者
-  have-account: 已有账户？
-  login: 登录
+zh_CN:
+    register: "注册"
+    username: "用户名"
+    username-placeholder: "输入用户名"
+    username-min-length: "用户名至少需要 3 个字符"
+    email: "邮箱"
+    email-placeholder: "输入邮箱"
+    password: "密码"
+    password-placeholder: "输入密码"
+    password-min-length: "密码至少需要 6 个字符"
+    confirm-password: "确认密码"
+    confirm-password-placeholder: "再次输入密码"
+    password-mismatch: "两次输入的密码不一致"
+    register-success: "注册成功"
+    have-account: "已有账号？"
+    login: "登录"
 </i18n>

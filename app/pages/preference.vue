@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Server, UserPreference } from '~~/server/utils/drizzle'
-import type { ImageResponse, } from '~~/shared/types/image'
+import type { ImageResponse } from '~~/shared/types/leporid/image'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -11,8 +10,8 @@ const { img } = useUtils()
 const { addNotification } = useNotificationsStore()
 const { $leporid } = useNuxtApp()
 
-const { data: profileData, pending: profilePending } = await useLeporid<UserProfile>('/api/profile')
-const { data: serversData, pending: serversPending } = await useLeporid<Server[]>('/api/servers')
+const { data: profileData, pending: profilePending } = await useLeporid<UserProfile>('/api/nuxt/profile')
+const { data: serversData, pending: serversPending } = await useLeporid<Server[]>('/api/nuxt/servers')
 
 type PreferenceForm = Omit<UserPreference, 'user_id'>
 type EditableAccount = Pick<UserAccount, 'id' | 'server_id' | 'credentials' | 'enabled'> & { _key: string }
@@ -55,7 +54,7 @@ const serverMap = computed(() => {
 
 const createEditableAccount = (account?: UserAccount): EditableAccount => ({
     _key: account?.id ? `existing-${account.id}` : nextAccountKey(),
-    id: account?.id,
+    id: account?.id ?? -1,
     server_id: account?.server_id ?? (servers.value[0]?.id ?? 0),
     credentials: account?.credentials ?? '',
     enabled: account?.enabled ?? true,
@@ -197,7 +196,7 @@ const handleSave = async () => {
             })),
         }
 
-        const updated = await $leporid<UserProfile>('/api/profile', {
+        const updated = await $leporid<UserProfile>('/api/nuxt/profile', {
             method: 'PUT',
             body: payload,
         })
@@ -321,7 +320,7 @@ const handleSave = async () => {
                                         <div>
                                             <p class="font-medium text-sm">{{ t('fields.dynamicRating.label') }}</p>
                                             <p class="text-xs text-base-content/70">{{ t('fields.dynamicRating.helper')
-                                                }}</p>
+                                            }}</p>
                                         </div>
                                         <input class="toggle toggle-primary" type="checkbox"
                                             v-model="preferenceForm.dynamicRating">

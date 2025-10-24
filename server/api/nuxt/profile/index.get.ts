@@ -1,6 +1,3 @@
-import { commonSuccess } from '~~/server/utils/common'
-import type { UserProfile } from '~~/shared/types/profile'
-
 export default defineEventHandler(async (event) => {
     const session = await requireUserSession(event)
     const userId = (session.user as NonNullable<typeof session.user>).id

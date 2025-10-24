@@ -15,3 +15,8 @@ export type Server = typeof schema.server.$inferSelect
 export type UserAccount = typeof schema.userAccount.$inferSelect
 export type UserPreference = typeof schema.userPreference.$inferSelect
 export type UserRating = typeof schema.userRating.$inferSelect
+
+export interface UserProfile {
+    preference: UserPreference
+    accounts: UserAccount[]
+}

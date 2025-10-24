@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { UserProfile } from '~~/shared/types/profile';
-
 definePageMeta({ middleware: 'auth' })
 
 const route = useRoute();
@@ -8,7 +6,7 @@ const dateLimit = route.query.date as string | undefined;
 const timeLimit = route.query.time as string | undefined;
 const maimaiMaid = route.query.maid as string | undefined;
 
-const { data: profile, status, error, refresh, clear } = await useLeporid<UserProfile>("/api/profile")
+const { data: profile, status, error, refresh, clear } = await useLeporid<UserProfile>("/api/nuxt/profile")
 const { img } = useUtils()
 
 const simplifiedCode = computed(() => {

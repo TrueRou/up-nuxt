@@ -2,8 +2,8 @@ declare module '#auth-utils' {
     interface User {
         id: number
         username: string
-        phone?: string
-        privileges: string[]
+        email: string
+        permissions: string[]
     }
 
     interface UserSession {
@@ -11,9 +11,7 @@ declare module '#auth-utils' {
     }
 
     interface SecureSessionData {
-        accessToken: string
-        refreshToken: string
-        expiresAt: number
+        // Add your own fields
     }
 }
 

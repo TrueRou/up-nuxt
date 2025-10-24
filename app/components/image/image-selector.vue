@@ -141,7 +141,7 @@ import ImageCard from '~/components/image/image-card.vue'
 import ImageUploader from '~/components/image/image-uploader.vue'
 import { useImages } from '~/composables/useImages'
 import { useUtils } from '~/composables/useUtils'
-import type { ImageResponse } from '~~/shared/types/image'
+import type { ImageResponse } from '~~/shared/types/leporid/image'
 
 interface PrimaryFilterOption {
     label: string

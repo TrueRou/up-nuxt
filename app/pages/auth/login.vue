@@ -39,10 +39,10 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
-import type { UserTokenCreateRequest } from '~~/shared/types/leporid/user'
+import type { UserLoginRequest } from '~~/shared/types/leporid/user'
 
 const { t } = useI18n()
-const { loggedIn, fetch: fetchUser } = useUserSession()
+const { loggedIn, fetch: fetchNuxtUser } = useUserSession()
 
 // Redirect if already logged in
 watchEffect(() => {
@@ -58,10 +58,9 @@ const loginSchema = z.object({
     refresh_token: z.string().optional(),
 })
 
-const form = reactive<UserTokenCreateRequest>({
+const form = reactive<UserLoginRequest>({
     username: '',
     password: '',
-    refresh_token: undefined,
 })
 
 const { validate, ve } = useFormValidation(loginSchema, form)
@@ -76,7 +75,8 @@ const handleLogin = async () => {
         successMessage: t('login-success')
     })
 
-    await fetchUser()
+    await useNuxtApp().$leporid('/api/nuxt/session') // 触发 Nuxt 用户更新
+    await fetchNuxtUser() // 拉取最新 Nuxt 用户信息
     await navigateTo('/')
 }
 

@@ -25,15 +25,13 @@ export default defineNuxtPlugin((nuxtApp) => {
         },
         onResponseError(context) {
             if (import.meta.client) {
-                const nuxtApp = useNuxtApp()
-                const leporidResp = context.response._data.data
+                const leporidResp = context.response._data
 
                 if (leporidResp.code && leporidResp.code !== 200) {
-                    const errMessage = nuxtApp.$i18n.t(`exceptions.${leporidResp.node}`) || nuxtApp.$i18n.t('exceptions.unknown-error')
                     const { addNotification } = useNotificationsStore()
                     addNotification({
                         type: 'error',
-                        message: errMessage
+                        message: leporidResp.message
                     })
                     Promise.reject(leporidResp) // reject the promise
                 }
