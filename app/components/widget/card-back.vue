@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { UserPreference } from '~~/shared/types/profile';
-
 const props = defineProps<{
     preferences: UserPreference;
 }>()

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
-
 const ratingLevels: any = [
     1000,
     2000,

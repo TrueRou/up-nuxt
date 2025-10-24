@@ -39,7 +39,6 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
-import type { UserLoginRequest } from '~~/shared/types/leporid/user'
 
 const { t } = useI18n()
 const authStore = useAuthStore()

@@ -30,9 +30,9 @@
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <button class="btn btn-sm" type="button" @click="rotateLeft">⟲ {{ t('rotate-left')
-                                    }}</button>
+                                }}</button>
                                 <button class="btn btn-sm" type="button" @click="rotateRight">⟳ {{ t('rotate-right')
-                                    }}</button>
+                                }}</button>
                                 <button class="btn btn-sm" type="button" @click="resetCrop">{{ t('reset') }}</button>
                             </div>
                         </div>
@@ -98,11 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, computed, reactive, ref, watch } from 'vue'
 import type { VueCropper } from 'vue-cropper';
-import { useI18n } from 'vue-i18n'
-import type { ImageAspect, ImageResponse } from '~~/shared/types/leporid/image'
-import { ImageVisibility } from '~~/shared/types/leporid/image'
 
 const props = defineProps<{
     open: boolean

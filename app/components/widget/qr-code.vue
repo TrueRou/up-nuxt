@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import QRCode, { type QRCodeToDataURLOptions } from 'qrcode'
-import { useTemplateRef, watchEffect } from 'vue';
 
 const qrcodeOpts = {
     errorCorrectionLevel: 'L',

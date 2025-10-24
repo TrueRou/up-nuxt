@@ -135,14 +135,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import ImageCard from '~/components/image/image-card.vue'
-import ImageUploader from '~/components/image/image-uploader.vue'
-import { useImages } from '~/composables/useImages'
-import { useUtils } from '~/composables/useUtils'
-import type { ImageResponse } from '~~/shared/types/leporid/image'
-
 interface PrimaryFilterOption {
     label: string
     value: string | null

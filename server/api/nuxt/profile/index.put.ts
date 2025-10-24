@@ -68,5 +68,9 @@ export default defineEventHandler(async (event) => {
         accounts: accounts
     }
 
-    return commonSuccess<UserProfile>(profile)
+    return {
+        code: 200,
+        message: '请求成功',
+        data: profile
+    }
 })
