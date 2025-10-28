@@ -1,4 +1,4 @@
-import { pgTable, integer, text, boolean, timestamp, serial } from "drizzle-orm/pg-core"
+import { pgTable, integer, text, boolean, timestamp, serial, uuid } from "drizzle-orm/pg-core"
 
 export const server = pgTable("tbl_server", {
     id: serial('id').primaryKey(),
@@ -13,7 +13,7 @@ export const server = pgTable("tbl_server", {
 });
 
 export const userPreference = pgTable("tbl_preference", {
-    user_id: integer("user_id").primaryKey(),
+    user_id: uuid("user_id").primaryKey(),
     maimaiVersion: text("maimai_version").notNull().default(""),
     simplifiedCode: text("simplified_code").notNull().default(""),
     characterName: text("character_name").notNull().default(""),
@@ -33,14 +33,14 @@ export const userPreference = pgTable("tbl_preference", {
 });
 
 export const userRating = pgTable("tbl_rating", {
-    user_id: integer("user_id").primaryKey(),
+    user_id: uuid("user_id").primaryKey(),
     rating: integer("rating").notNull().default(0),
     updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
 export const userAccount = pgTable("tbl_account", {
     id: serial('id').primaryKey(),
-    user_id: integer("user_id").notNull(),
+    user_id: uuid("user_id").notNull(),
     server_id: integer("server_id").notNull().references(() => server.id),
     credentials: text("credentials").notNull(),
     enabled: boolean("enabled").notNull().default(true),

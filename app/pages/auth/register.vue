@@ -109,6 +109,13 @@ const handleRegister = async () => {
         successMessage: t('register-success')
     })
 
+    await useNuxtApp().$leporid('/api/auth/login', {
+        method: 'POST',
+        body: form,
+        showSuccessToast: true,
+        successMessage: t('login-success')
+    })
+
     await authStore.fetch()
     await navigateTo('/')
 }

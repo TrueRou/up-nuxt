@@ -11,12 +11,12 @@ export enum ImageVisibility {
  * 图片响应
  */
 export interface ImageResponse {
-    user_id: number
+    user_id: string
     file_name: string
     metadata_id: string
     created_at: string
     updated_at: string
-    uuid: string
+    id: string
     name: string
     description?: string
     visibility: ImageVisibility
