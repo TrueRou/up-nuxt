@@ -126,37 +126,36 @@ useHead({
 </script>
 
 <i18n lang="yaml">
-en_GB:
-    register: "Register"
-    username: "Username"
-    username-placeholder: "Enter your username"
-    username-min-length: "Username must be at least 3 characters"
-    email: "Email"
-    email-placeholder: "Enter your email"
-    password: "Password"
-    password-placeholder: "Enter your password"
-    password-min-length: "Password must be at least 6 characters"
-    confirm-password: "Confirm password"
-    confirm-password-placeholder: "Re-enter your password"
-    password-mismatch: "Passwords do not match"
-    register-success: "Registration successful"
-    have-account: "Already have an account?"
-    login: "Log in"
-
-zh_CN:
-    register: "注册"
-    username: "用户名"
-    username-placeholder: "输入用户名"
-    username-min-length: "用户名至少需要 3 个字符"
-    email: "邮箱"
-    email-placeholder: "输入邮箱"
-    password: "密码"
-    password-placeholder: "输入密码"
-    password-min-length: "密码至少需要 6 个字符"
-    confirm-password: "确认密码"
-    confirm-password-placeholder: "再次输入密码"
-    password-mismatch: "两次输入的密码不一致"
-    register-success: "注册成功"
-    have-account: "已有账号？"
-    login: "登录"
+en-GB:
+    register: Register
+    username: Username
+    username-placeholder: Enter your username
+    username-min-length: Username must be at least 3 characters
+    email: Email
+    email-placeholder: Enter your email
+    password: Password
+    password-placeholder: Enter your password
+    password-min-length: Password must be at least 6 characters
+    confirm-password: Confirm password
+    confirm-password-placeholder: Re-enter your password
+    password-mismatch: Passwords do not match
+    register-success: Registration successful
+    have-account: Already have an account?
+    login: Log in
+zh-CN:
+    register: 注册
+    username: 用户名
+    username-placeholder: 输入用户名
+    username-min-length: 用户名至少需要 3 个字符
+    email: 邮箱
+    email-placeholder: 输入邮箱
+    password: 密码
+    password-placeholder: 输入密码
+    password-min-length: 密码至少需要 6 个字符
+    confirm-password: 确认密码
+    confirm-password-placeholder: 再次输入密码
+    password-mismatch: 两次输入的密码不一致
+    register-success: 注册成功
+    have-account: 已有账号？
+    login: 登录
 </i18n>
