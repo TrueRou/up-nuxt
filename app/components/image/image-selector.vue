@@ -246,13 +246,13 @@ const displayedImages = computed(() => {
     return listData
 })
 
-const imageKey = (image: ImageResponse) => image.uuid
+const imageKey = (image: ImageResponse) => image.id
 
 const imageUrl = (image: ImageResponse) => img(image.metadata_id ?? image.file_name)
 
 const isSelected = (image: ImageResponse) => {
     if (!selectedImage.value) return false
-    return image.uuid === selectedImage.value.uuid
+    return image.id === selectedImage.value.id
 }
 
 const close = () => {
@@ -312,7 +312,7 @@ const confirmSelection = () => {
 const handleRename = async ({ image, name }: { image: ImageResponse; name: string }) => {
     pending.value = true
     try {
-        await updateImage(image.uuid, {
+        await updateImage(image.id, {
             name,
             description: image.description,
             visibility: image.visibility,
@@ -331,8 +331,8 @@ const handleDelete = async () => {
     if (!deleteTarget.value) return
     pending.value = true
     try {
-        await deleteImage(deleteTarget.value.uuid)
-        if (selectedImage.value && selectedImage.value.uuid === deleteTarget.value.uuid) {
+        await deleteImage(deleteTarget.value.id)
+        if (selectedImage.value && selectedImage.value.id === deleteTarget.value.id) {
             selectedImage.value = null
         }
         deleteTarget.value = null
@@ -347,7 +347,7 @@ const handleUploaded = (image: ImageResponse) => {
 
 watch(images, (newImages) => {
     if (!selectedImage.value) return
-    const fresh = newImages.find((item) => item.uuid === selectedImage.value!.uuid)
+    const fresh = newImages.find((item) => item.id === selectedImage.value!.id)
     if (fresh) {
         selectedImage.value = fresh
     }
