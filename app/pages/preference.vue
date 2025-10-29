@@ -2,10 +2,8 @@
 definePageMeta({ middleware: "require-login" });
 
 const { t } = useI18n()
-const { t } = useI18n();
 const { img } = useUtils();
 const { addNotification } = useNotificationsStore();
-const { $leporid } = useNuxtApp();
 
 const { data: profileData, pending: profilePending } =
     await useLeporid<UserProfile>("/api/nuxt/profile");
@@ -242,7 +240,7 @@ const handleSave = async () => {
             })),
         };
 
-        const updated = await $leporid<UserProfile>("/api/nuxt/profile", {
+        const updated = await useNuxtApp().$leporid<UserProfile>("/api/nuxt/profile", {
             method: "PUT",
             body: payload,
         });
@@ -291,7 +289,7 @@ const handleSave = async () => {
                                     <label class="label preference-field-label">
                                         <span class="label-text">{{
                                             t("fields.displayName.label")
-                                        }}</span>
+                                            }}</span>
                                     </label>
                                     <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.displayName"
@@ -302,7 +300,7 @@ const handleSave = async () => {
                                     <label class="label preference-field-label">
                                         <span class="label-text">{{
                                             t("fields.simplifiedCode.label")
-                                        }}</span>
+                                            }}</span>
                                     </label>
                                     <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.simplifiedCode"
@@ -313,7 +311,7 @@ const handleSave = async () => {
                                     <label class="label preference-field-label">
                                         <span class="label-text">{{
                                             t("fields.friendCode.label")
-                                        }}</span>
+                                            }}</span>
                                     </label>
                                     <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.friendCode"
@@ -324,7 +322,7 @@ const handleSave = async () => {
                                     <label class="label preference-field-label">
                                         <span class="label-text">{{
                                             t("fields.characterName.label")
-                                        }}</span>
+                                            }}</span>
                                     </label>
                                     <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.characterName"
@@ -335,7 +333,7 @@ const handleSave = async () => {
                                     <label class="label preference-field-label">
                                         <span class="label-text">{{
                                             t("fields.maimaiVersion.label")
-                                        }}</span>
+                                            }}</span>
                                     </label>
                                     <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.maimaiVersion"
@@ -346,7 +344,7 @@ const handleSave = async () => {
                                     <label class="label preference-field-label">
                                         <span class="label-text">{{
                                             t("fields.dxRating.label")
-                                        }}</span>
+                                            }}</span>
                                     </label>
                                     <input class="input input-bordered w-full md:w-[20rem]" type="text"
                                         v-model="preferenceForm.dxRating"
@@ -356,7 +354,7 @@ const handleSave = async () => {
                                     <label class="label preference-field-label">
                                         <span class="label-text">{{
                                             t("fields.charaInfoColor.label")
-                                        }}</span>
+                                            }}</span>
                                     </label>
                                     <input class="input input-bordered w-full md:w-[20rem]" type="color"
                                         v-model="preferenceForm.charaInfoColor" />
@@ -365,7 +363,7 @@ const handleSave = async () => {
                                     <label class="label preference-field-label">
                                         <span class="label-text">{{
                                             t("fields.qrSize.label")
-                                        }}</span>
+                                            }}</span>
                                     </label>
                                     <p class="preference-field-helper text-xs text-base-content/60">
                                         {{ t("fields.qrSize.helper") }}
@@ -427,7 +425,7 @@ const handleSave = async () => {
                                                 class="h-full w-full object-cover" loading="lazy" />
                                             <span v-else class="text-xs text-base-content/40">{{
                                                 t("preview.empty")
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div class="flex-1 space-y-1">
                                             <p class="text-sm font-semibold">
@@ -512,7 +510,7 @@ const handleSave = async () => {
                                         <label class="label">
                                             <span class="label-text">{{
                                                 t("fields.account.server")
-                                            }}</span>
+                                                }}</span>
                                         </label>
                                         <select class="select select-bordered" v-model.number="account.server_id"
                                             :disabled="servers.length === 0">
@@ -523,7 +521,7 @@ const handleSave = async () => {
                                         <label v-if="attemptedSubmit && !account.server_id" class="label">
                                             <span class="label-text-alt text-xs text-error">{{
                                                 t("errors.account.server")
-                                            }}</span>
+                                                }}</span>
                                         </label>
                                     </div>
 
@@ -547,7 +545,7 @@ const handleSave = async () => {
                                         <label v-if="attemptedSubmit && !account.credentials.trim()" class="label">
                                             <span class="label-text-alt text-xs text-error">{{
                                                 t("errors.account.credentials")
-                                            }}</span>
+                                                }}</span>
                                         </label>
                                     </div>
                                 </div>
