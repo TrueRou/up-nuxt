@@ -10,7 +10,7 @@ const props = defineProps<{
 
 </script>
 <template>
-    <div class="flex flex-col">
+    <div class="flex flex-col text-black">
         <div class="flex flex-col pt-1 pb-1 rounded-tr-lg w-4/5" :style="{ 'background-color': charaInfoColor }">
             <p class="text-center text-sm font-semibold text-nowrap font-sega">{{ props.charaName }}</p>
         </div>

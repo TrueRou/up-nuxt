@@ -18,8 +18,8 @@ const props = defineProps<{
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
-const getNum = (id: string) => new URL(`@/assets/icons/rating/num/UI_CMN_Num_26p_${id}.png`, import.meta.url).href;
-const getBase = (id: string) => new URL(`@/assets/icons/rating/UI_CMA_Rating_Base_${id}.png`, import.meta.url).href;
+const getNum = (id: string) => new URL(`../../assets/icons/rating/num/UI_CMN_Num_26p_${id}.png`, import.meta.url).href;
+const getBase = (id: string) => new URL(`../../assets/icons/rating/UI_CMA_Rating_Base_${id}.png`, import.meta.url).href;
 
 const countOccurrences = (str: string, searchTerm: string) => {
     let count = 0;
@@ -86,7 +86,6 @@ watch([() => props.rating, baseImage, numImages], drawCanvas);
 </script>
 
 <template>
-    <div class="w-full" :class="{ 'invisible': props.rating === undefined || isNaN(parseInt(props.rating)) }">
-        <canvas ref="canvasRef" width="269" height="70" class="w-full"></canvas>
-    </div>
+    <canvas ref="canvasRef" width="269" height="70" class="ms-auto"
+        :class="{ 'invisible': props.rating === undefined || isNaN(parseInt(props.rating)) }" />
 </template>

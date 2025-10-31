@@ -19,45 +19,59 @@ const playerRating = computed(() => {
 })
 </script>
 <template>
-    <div class="flex items-center justify-center h-full w-full" v-if="profile">
-        <div class="flex relative flex-col items-center justify-center h-full">
-            <WidgetCardBack :preferences="profile.preference" />
-            <div class="flex flex-col absolute top-0 w-full h-full">
-                <div class="header-widget flex relative w-full justify-between">
-                    <img class="object-cover w-1/2" :src="img(profile.preference.passnameId)" />
-                    <WidgetDxRating class="w-1/2" :rating="playerRating" />
+    <div class="isolate h-[100dvh] dark:bg-gray-800" v-if="profile">
+        <div class="relative h-full w-fit mx-auto">
+            <img class="object-cover h-full" :src="img(profile.preference.backgroundId)">
+            <div class="absolute inset-0">
+                <img class="chara-center h-full absolute object-cover" :src="img(profile.preference.characterId)">
+
+                <img class="frame-upper h-full absolute" :src="img(profile.preference.frameId)">
+                <div class="absolute inset-0">
+                    <div class="relative space-y-2 w-full">
+                        <WidgetDxRating class="pt-4 w-[40%]" :rating="playerRating" />
+                        <WidgetPlayerInfo :username="profile.preference.displayName || undefined"
+                            :friend-code="profile.preference.friendCode || undefined" player-info-color="#ffffff" />
+                    </div>
                 </div>
-                <div class="header-widget flex relative w-full flex-row-reverse">
-                    <WidgetPlayerInfo :username="profile.preference.displayName || undefined"
-                        :friend-code="profile.preference.friendCode || undefined" />
-                </div>
-            </div>
-            <div class="absolute flex flex-col left-0" style="bottom: 8%;">
+
                 <WidgetCharaInfo :chara-name="profile.preference.characterName || undefined" :time="timeLimit"
                     :date="dateLimit" :show-date="profile.preference.showDate"
-                    :chara-info-color="profile.preference.charaInfoColor" />
-            </div>
-            <div class="qr-widget absolute" v-if="maimaiMaid">
-                <WidgetQrCode :content="maimaiMaid" :size="profile.preference.qrSize || 20" />
-            </div>
-            <div class="flex absolute bottom-0 items-center justify-center w-full h-8">
-                <div class="footer-widget flex justify-between py-1 rounded-2xl bg-gray-800 text-white opacity-85">
-                    <p class="footer-text font-sega">{{ profile.preference.simplifiedCode || simplifiedCode }}</p>
-                    <p class="footer-text font-sega">{{ profile.preference.maimaiVersion }}</p>
-                </div>
-                <NuxtLink to="/preference">
-                    <div class="p-1 rounded-full bg-white">
-                        <img src="@/assets/icons/misc/settings.svg" style="width: 2vh;"></img>
+                    :chara-info-color="profile.preference.charaInfoColor" class="bottom-[18%] absolute" />
+
+                <div id="c-footer" class="flex absolute bottom-0 items-center justify-center w-full pb-[0.8%]"
+                    :style="{ '--b-bottom': 'url(' + img(profile.preference.frameId) + ')' }">
+                    <div class="footer-widget flex justify-between py-1 rounded-2xl bg-gray-800 text-white opacity-85">
+                        <p class="footer-text font-sega">{{ profile.preference.simplifiedCode || simplifiedCode }}</p>
+                        <p class="footer-text font-sega">{{ profile.preference.maimaiVersion || '[maimaiDX]CN1.51-F' }}
+                        </p>
                     </div>
-                </NuxtLink>
+                    <NuxtLink to="/preference">
+                        <div class="p-1 rounded-full bg-white dark:bg-gray-800" aria-label="settings" role="img">
+                            <svg xmlns="http://www.w3.org/2000/svg" style="width: 3vmin;" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06A2 2 0 1 1 2.27 16.9l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09c.6 0 1.14-.36 1.51-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 6.1 2.27l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09c0 .6.36 1.14 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06A2 2 0 1 1 21.73 7.1l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09c-.6 0-1.14.36-1.51 1z" />
+                            </svg>
+                        </div>
+                    </NuxtLink>
+                </div>
             </div>
         </div>
     </div>
 </template>
 <style scoped>
-.qr-widget {
-    bottom: 5%;
-    right: 0;
+.frame-upper {
+    object-fit: contain;
+    object-position: center top;
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+}
+
+.chara-center {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%)
 }
 
 .header-widget {
@@ -73,19 +87,33 @@ const playerRating = computed(() => {
 }
 
 .footer-text {
-    font-size: 1.2vh;
+    font-size: clamp(1.2dvh, 2dvw, 1.8vmin);
     line-height: 120%;
 }
 
-.card-id-display {
-    position: absolute;
-    bottom: 1%;
+.qr-front {
+    bottom: 7%;
     right: 1%;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 0.3vh 0.8vh;
-    border-radius: 1vh;
-    font-size: 3vh;
-    font-family: "SEGA_MARUGOTHICDB", sans-serif;
+}
+
+#c-footer {
+    &:before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding-top: 100vh;
+
+        background-image: var(--b-bottom);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: left bottom;
+        clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+    }
+
+    >* {
+        z-index: 1;
+    }
 }
 </style>

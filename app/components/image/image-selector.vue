@@ -28,13 +28,12 @@
                         </a>
                     </div>
                     <div class="flex flex-wrap gap-3 items-center">
-                        <div class="join">
-                            <button v-for="tag in secondaryTags" :key="tag.value" class="btn btn-sm join-item"
-                                :class="tag.value === activeSecondary ? 'btn-primary' : 'btn-outline'"
-                                @click.prevent="selectSecondary(tag.value)">
-                                {{ tag.label }}
-                            </button>
-                        </div>
+                        <form class="join filter" role="radiogroup" aria-label="Secondary filter" @submit.prevent
+                            @reset.prevent>
+                            <input v-for="tag in secondaryTags" :key="tag.value" type="radio" name="secondary-filter"
+                                class="btn btn-sm join-item" :value="tag.label" :aria-label="tag.label"
+                                :checked="activeSecondary === tag.value" @change="selectSecondary(tag.value)" />
+                        </form>
                         <div v-if="activeSecondary === 'all' || activeSecondary === 'custom'"
                             class="flex-1 min-w-[220px]">
                             <div class="join w-full">

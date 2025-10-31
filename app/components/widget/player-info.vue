@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 const props = defineProps<{
     username?: string;
     friendCode?: string;
@@ -7,25 +8,23 @@ const props = defineProps<{
 
 </script>
 <template>
-    <div class="right-0 flex flex-col rounded-sm" :style="{ 'background-color': playerInfoColor }"
+    <div class="rounded-s-md ms-auto w-fit text-black" :style="{ 'background-color': playerInfoColor }"
         v-if="props.username">
-        <div class="flex items-center p-[2px]">
-            <p class="font-bold font-sega text-[9.5px]">{{ props.username }}</p>
-            <img class="h-[10px]" src="@/assets/icons/misc/deluxe.png">
-        </div>
-        <div class="flex items-center" v-if="props.friendCode">
-            <p class="friend-code-font text-white pl-1 pr-1 text-center rounded-sm text-nowrap font-sega">
-                フレンド<br>コ一ド
+        <div class="p-1 space-x-1 text-end">
+            <p class="inline font-bold font-sega align-middle" style="font-size: max(12pt, 1.8vh);">
+                {{ props.username }}
             </p>
-            <p class="ml-[1px] font-extrabold font-sega text-[7px]">{{ props.friendCode }}
+            <img class="inline align-middle" style="height: 3.5vh;" src="../../assets/icons/misc/deluxe.png">
+        </div>
+        <div v-if="props.friendCode">
+            <div class="inline-block align-middle text-white pl-2 pr-2 text-center font-extrabold rounded-bl-md text-nowrap font-sega"
+                style="font-size: max(6pt, 1.2vh); background-color: #405baa; -webkit-text-stroke: 1px #fff">
+                フレンド<br>コ一ド
+            </div>
+            <p class="inline align-middle ml-0.5 font-extrabold font-sega" style="font-size: max(10pt, 1.8vh);">{{
+                props.friendCode
+            }}
             </p>
         </div>
     </div>
 </template>
-<style scoped>
-.friend-code-font {
-    font-size: 4.5px;
-    background-color: #405baa;
-    -webkit-text-stroke: 0.8px #fff
-}
-</style>
