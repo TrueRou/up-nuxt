@@ -17,11 +17,6 @@
                             }) }}
                         </p>
                     </div>
-                    <div class="flex gap-3">
-                        <button class="btn" type="button" @click="openUploader = true">
-                            {{ t('actions.upload') }}
-                        </button>
-                    </div>
                 </header>
 
                 <section class="space-y-4">
@@ -42,9 +37,6 @@
                         </div>
                         <div v-if="activeSecondary === 'all' || activeSecondary === 'custom'"
                             class="flex-1 min-w-[220px]">
-                            <label class="label">
-                                <span class="label-text">{{ t('search') }}</span>
-                            </label>
                             <div class="join w-full">
                                 <input v-model="searchInput" type="search" class="input input-bordered join-item flex-1"
                                     :placeholder="t(activeSecondary === 'custom' ? 'search-custom-placeholder' : 'search-placeholder')">
@@ -393,7 +385,6 @@ en-GB:
   primary-all: All categories
   secondary-all: All
   secondary-custom: Custom
-  search: Search
   search-placeholder: Search by name or label
   search-custom-placeholder: Search your private uploads
   clear: Clear
@@ -416,7 +407,6 @@ zh-CN:
   primary-all: 全部分类
   secondary-all: 全部
   secondary-custom: 自定义
-  search: 搜索
   search-placeholder: 按名称或标签搜索
   search-custom-placeholder: 搜索你的私有图片
   clear: 清空

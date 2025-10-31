@@ -15,24 +15,24 @@
                     <div class="flex flex-col gap-4">
                         <input ref="fileInput" type="file" accept="image/*"
                             class="file-input file-input-bordered w-full" @change="handleFileChange">
-                        <div v-if="!previewUrl"
+                        <div v-if="!filePreviewImage"
                             class="p-6 border border-dashed rounded-lg text-center text-base-content/60">
                             {{ t('placeholder') }}
                         </div>
                         <div v-else class="space-y-3">
-                            <div class="rounded-lg border overflow-hidden">
-                                <ClientOnly>
-                                    <VueCropper ref="cropperRef" :img="previewUrl" :autoCrop="true" :fixed="true"
+                            <ClientOnly>
+                                <div class="rounded-lg border h-[320px] w-full overflow-hidden">
+                                    <VueCropper ref="cropperRef" :img="filePreviewImage" :autoCrop="true" :fixed="true"
                                         :fixedNumber="cropRatio" :centerBox="true" :autoCropWidth="cropBox.width"
                                         :autoCropHeight="cropBox.height" :full="true" :canScale="true"
                                         class="h-[320px] w-full" />
-                                </ClientOnly>
-                            </div>
+                                </div>
+                            </ClientOnly>
                             <div class="flex flex-wrap gap-2">
                                 <button class="btn btn-sm" type="button" @click="rotateLeft">⟲ {{ t('rotate-left')
-                                }}</button>
+                                    }}</button>
                                 <button class="btn btn-sm" type="button" @click="rotateRight">⟳ {{ t('rotate-right')
-                                }}</button>
+                                    }}</button>
                                 <button class="btn btn-sm" type="button" @click="resetCrop">{{ t('reset') }}</button>
                             </div>
                         </div>
@@ -115,10 +115,10 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const cropperRef = ref<InstanceType<typeof VueCropper> | null>(null)
+const cropperRef = useTemplateRef<InstanceType<typeof VueCropper>>('cropperRef')
 const fileInput = ref<HTMLInputElement | null>(null)
-const previewUrl = ref<string | null>(null)
-const rawFile = ref<File | null>(null)
+const filePreviewImage = ref<string | null>(null)
+const fileRaw = ref<File | null>(null)
 const submitting = ref(false)
 const tagDraft = ref('')
 
@@ -162,20 +162,22 @@ watch(() => props.open, (value) => {
     }
 })
 
-const canSubmit = computed(() => !!previewUrl.value && !!metadata.name.trim() && !submitting.value)
+const canSubmit = computed(() => !!filePreviewImage.value && !!metadata.name.trim() && !submitting.value)
 
 const handleFileChange = async (event: Event) => {
-    const target = event.target as HTMLInputElement
-    const files = target.files
+    const files = (event.target as HTMLInputElement).files;
     if (!files || files.length === 0) return
 
     const file = files.item(0)
     if (!file) return
-    rawFile.value = file
-    if (previewUrl.value) {
-        URL.revokeObjectURL(previewUrl.value)
+
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+        filePreviewImage.value = ev.target?.result as string;
     }
-    previewUrl.value = URL.createObjectURL(file)
+    reader.readAsDataURL(file);
+    fileRaw.value = file
+    metadata.name = file.name.replace(/\.[^/.]+$/, "")
     await nextTick()
     cropperRef.value?.refresh()
 }
@@ -189,7 +191,7 @@ const rotateRight = () => {
 }
 
 const resetCrop = () => {
-    cropperRef.value?.reset()
+    cropperRef.value?.refresh()
 }
 
 const addTag = () => {
@@ -216,11 +218,11 @@ const close = () => {
 }
 
 const cleanupPreview = () => {
-    if (previewUrl.value) {
-        URL.revokeObjectURL(previewUrl.value)
-        previewUrl.value = null
+    if (filePreviewImage.value) {
+        URL.revokeObjectURL(filePreviewImage.value)
+        filePreviewImage.value = null
     }
-    rawFile.value = null
+    fileRaw.value = null
 }
 
 const reset = () => {
@@ -236,7 +238,7 @@ const reset = () => {
 }
 
 const submit = async () => {
-    if (!canSubmit.value || !previewUrl.value || !rawFile.value) return
+    if (!canSubmit.value || !filePreviewImage.value || !fileRaw.value) return
     submitting.value = true
     try {
         const blob = await new Promise<Blob>((resolve, reject) => {
@@ -250,7 +252,7 @@ const submit = async () => {
         })
 
         const formData = new FormData()
-        const fileName = rawFile.value?.name ?? 'image.png'
+        const fileName = fileRaw.value?.name ?? 'image.png'
         formData.append('file', blob, fileName)
         formData.append('aspect_id', props.aspect?.id ?? props.aspectId)
         formData.append('name', metadata.name.trim())

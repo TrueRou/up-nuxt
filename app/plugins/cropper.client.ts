@@ -2,5 +2,5 @@ import VueCropper from 'vue-cropper'
 import 'vue-cropper/dist/index.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
-    nuxtApp.vueApp.component('VueCropper', VueCropper)
+    nuxtApp.vueApp.use(VueCropper as any)
 })
