@@ -6,14 +6,16 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             user.value = await useNuxtApp().$leporid<UserResponse>('/api/users/me')
             isAuthenticated.value = !!user.value
-        } catch (error) {
+        }
+        catch {
             user.value = null
             isAuthenticated.value = false
         }
     }
 
     const lazyFetch = async () => {
-        if (!user.value && isAuthenticated.value) await fetch()
+        if (!user.value && isAuthenticated.value)
+            await fetch()
     }
 
     const clear = async () => {
@@ -27,6 +29,6 @@ export const useAuthStore = defineStore('auth', () => {
         user,
         fetch,
         lazyFetch,
-        clear
+        clear,
     }
 })

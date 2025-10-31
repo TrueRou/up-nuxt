@@ -1,8 +1,98 @@
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const props = defineProps<{
+    image: ImageResponse
+    imageUrl: string
+    aspect: ImageAspect | null
+    selected: boolean
+    disabled?: boolean
+}>()
+
+const emit = defineEmits<{
+    (event: 'select', image: ImageResponse): void
+    (event: 'rename', payload: { image: ImageResponse, name: string }): void
+    (event: 'delete', image: ImageResponse): void
+}>()
+
+const { t, d } = useI18n()
+
+const isEditing = ref(false)
+const editableName = ref(props.image.name)
+
+watch(() => props.image.name, (name) => {
+    if (!isEditing.value) {
+        editableName.value = name
+    }
+})
+
+const aspectStyle = computed(() => {
+    if (!props.aspect) {
+        return {
+            aspectRatio: '4 / 3',
+        }
+    }
+    return {
+        aspectRatio: `${props.aspect.ratioWidthUnit} / ${props.aspect.ratioHeightUnit}`,
+    }
+})
+
+function handleSelect() {
+    if (props.disabled)
+        return
+    emit('select', props.image)
+}
+
+function toggleEdit() {
+    if (isEditing.value) {
+        submitRename()
+    }
+    else {
+        isEditing.value = true
+        editableName.value = props.image.name
+    }
+}
+
+function submitRename() {
+    const trimmed = editableName.value.trim()
+    if (!trimmed || trimmed === props.image.name) {
+        isEditing.value = false
+        editableName.value = props.image.name
+        return
+    }
+    emit('rename', { image: props.image, name: trimmed })
+    isEditing.value = false
+}
+
+function cancelEdit() {
+    editableName.value = props.image.name
+    isEditing.value = false
+}
+
+function emitDelete() {
+    emit('delete', props.image)
+}
+
+function formatDate(value: string) {
+    if (!value)
+        return ''
+    try {
+        return d(new Date(value), 'short')
+    }
+    catch {
+        return value
+    }
+}
+</script>
+
 <template>
-    <div class="card bg-base-200 shadow-md hover:shadow-xl transition-shadow cursor-pointer" :class="{
-        'ring ring-primary ring-offset-2': selected,
-        'opacity-60 pointer-events-none': disabled
-    }" @click="handleSelect">
+    <div
+        class="card bg-base-200 shadow-md hover:shadow-xl transition-shadow cursor-pointer" :class="{
+            'ring ring-primary ring-offset-2': selected,
+            'opacity-60 pointer-events-none': disabled,
+        }" @click="handleSelect"
+    >
         <div class="relative">
             <div class="w-full overflow-hidden" :style="aspectStyle">
                 <img :src="imageUrl" :alt="image.name" class="h-full w-full object-cover" loading="lazy">
@@ -22,11 +112,15 @@
         </div>
         <div class="card-body space-y-3">
             <div>
-                <div v-if="!isEditing" class="font-semibold truncate">{{ image.name }}</div>
+                <div v-if="!isEditing" class="font-semibold truncate">
+                    {{ image.name }}
+                </div>
                 <div v-else class="flex gap-2">
-                    <input v-model="editableName" type="text" class="input input-sm input-bordered flex-1"
-                        :placeholder="t('rename-placeholder')" />
-                    <button class="btn btn-sm btn-primary" @click.stop="submitRename" :disabled="!editableName.trim()">
+                    <input
+                        v-model="editableName" type="text" class="input input-sm input-bordered flex-1"
+                        :placeholder="t('rename-placeholder')"
+                    >
+                    <button class="btn btn-sm btn-primary" :disabled="!editableName.trim()" @click.stop="submitRename">
                         {{ t('save') }}
                     </button>
                     <button class="btn btn-sm" @click.stop="cancelEdit">
@@ -49,90 +143,6 @@
         </div>
     </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-const props = defineProps<{
-    image: ImageResponse
-    imageUrl: string
-    aspect: ImageAspect | null
-    selected: boolean
-    disabled?: boolean
-}>()
-
-const emit = defineEmits<{
-    (event: 'select', image: ImageResponse): void
-    (event: 'rename', payload: { image: ImageResponse; name: string }): void
-    (event: 'delete', image: ImageResponse): void
-}>()
-
-const { t, d } = useI18n()
-
-const isEditing = ref(false)
-const editableName = ref(props.image.name)
-
-watch(() => props.image.name, (name) => {
-    if (!isEditing.value) {
-        editableName.value = name
-    }
-})
-
-const aspectStyle = computed(() => {
-    if (!props.aspect) {
-        return {
-            aspectRatio: '4 / 3'
-        }
-    }
-    return {
-        aspectRatio: `${props.aspect.ratioWidthUnit} / ${props.aspect.ratioHeightUnit}`
-    }
-})
-
-const handleSelect = () => {
-    if (props.disabled) return
-    emit('select', props.image)
-}
-
-const toggleEdit = () => {
-    if (isEditing.value) {
-        submitRename()
-    } else {
-        isEditing.value = true
-        editableName.value = props.image.name
-    }
-}
-
-const submitRename = () => {
-    const trimmed = editableName.value.trim()
-    if (!trimmed || trimmed === props.image.name) {
-        isEditing.value = false
-        editableName.value = props.image.name
-        return
-    }
-    emit('rename', { image: props.image, name: trimmed })
-    isEditing.value = false
-}
-
-const cancelEdit = () => {
-    editableName.value = props.image.name
-    isEditing.value = false
-}
-
-const emitDelete = () => {
-    emit('delete', props.image)
-}
-
-const formatDate = (value: string) => {
-    if (!value) return ''
-    try {
-        return d(new Date(value), 'short')
-    } catch (error) {
-        return value
-    }
-}
-</script>
 
 <i18n lang="yaml">
 en-GB:

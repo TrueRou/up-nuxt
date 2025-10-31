@@ -1,104 +1,5 @@
-<template>
-    <dialog v-if="open" class="modal modal-open">
-        <div class="modal-box max-w-4xl">
-            <form method="dialog">
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4" @click.prevent="close">
-                    ✕
-                </button>
-            </form>
-            <h3 class="font-bold text-xl mb-6 flex items-center gap-3">
-                <span>{{ t('title') }}</span>
-                <span v-if="aspect" class="badge badge-outline">{{ aspect.name }}</span>
-            </h3>
-            <div class="grid gap-8 lg:grid-cols-[2fr,1fr]">
-                <div class="space-y-4">
-                    <div class="flex flex-col gap-4">
-                        <input ref="fileInput" type="file" accept="image/*"
-                            class="file-input file-input-bordered w-full" @change="handleFileChange">
-                        <div v-if="!filePreviewImage"
-                            class="p-6 border border-dashed rounded-lg text-center text-base-content/60">
-                            {{ t('placeholder') }}
-                        </div>
-                        <div v-else class="space-y-3">
-                            <ClientOnly>
-                                <div class="rounded-lg border h-[320px] w-full overflow-hidden">
-                                    <VueCropper ref="cropperRef" :img="filePreviewImage" :autoCrop="true" :fixed="true"
-                                        :fixedNumber="cropRatio" :centerBox="true" :autoCropWidth="cropBox.width"
-                                        :autoCropHeight="cropBox.height" :full="true" :canScale="true"
-                                        class="h-[320px] w-full" />
-                                </div>
-                            </ClientOnly>
-                            <div class="flex flex-wrap gap-2">
-                                <button class="btn btn-sm" type="button" @click="rotateLeft">⟲ {{ t('rotate-left')
-                                    }}</button>
-                                <button class="btn btn-sm" type="button" @click="rotateRight">⟳ {{ t('rotate-right')
-                                    }}</button>
-                                <button class="btn btn-sm" type="button" @click="resetCrop">{{ t('reset') }}</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="label">
-                            <span class="label-text">{{ t('name') }}</span>
-                        </label>
-                        <input v-model="metadata.name" type="text" class="input input-bordered w-full"
-                            :placeholder="t('name-placeholder')">
-                    </div>
-                    <div>
-                        <label class="label">
-                            <span class="label-text">{{ t('description') }}</span>
-                        </label>
-                        <textarea v-model="metadata.description" class="textarea textarea-bordered w-full"
-                            :placeholder="t('description-placeholder')" rows="3"></textarea>
-                    </div>
-                    <div>
-                        <label class="label">
-                            <span class="label-text">{{ t('visibility') }}</span>
-                        </label>
-                        <select v-model="metadata.visibility" class="select select-bordered w-full">
-                            <option value="PRIVATE">{{ t('visibility-private') }}</option>
-                            <option value="PUBLIC">{{ t('visibility-public') }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="label flex justify-between items-center">
-                            <span class="label-text">{{ t('labels') }}</span>
-                            <div class="flex gap-2">
-                                <button v-for="suggest in suggestedLabels" :key="suggest" class="btn btn-xs btn-outline"
-                                    type="button" @click="applySuggested(suggest)">
-                                    {{ suggest }}
-                                </button>
-                            </div>
-                        </label>
-                        <div class="flex gap-2 mb-2">
-                            <input v-model="tagDraft" type="text" class="input input-bordered input-sm flex-1"
-                                :placeholder="t('label-placeholder')" @keyup.enter.prevent="addTag">
-                            <button class="btn btn-sm btn-primary" type="button" @click="addTag">{{ t('add') }}</button>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <div v-for="label in metadata.labels" :key="label" class="badge badge-outline gap-2">
-                                <span>{{ label }}</span>
-                                <button type="button" class="btn btn-xs btn-ghost" @click="removeTag(label)">✕</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-action">
-                <button class="btn btn-ghost" type="button" @click="close">{{ t('cancel') }}</button>
-                <button class="btn btn-primary" type="button" :disabled="!canSubmit || submitting" @click="submit">
-                    <span v-if="submitting" class="loading loading-spinner"></span>
-                    <span>{{ t('submit') }}</span>
-                </button>
-            </div>
-        </div>
-    </dialog>
-</template>
-
 <script setup lang="ts">
-import type { VueCropper } from 'vue-cropper';
+import type { VueCropper } from 'vue-cropper'
 
 const props = defineProps<{
     open: boolean
@@ -157,67 +58,71 @@ watch(() => props.open, (value) => {
         nextTick(() => {
             fileInput.value?.focus()
         })
-    } else {
+    }
+    else {
         cleanupPreview()
     }
 })
 
 const canSubmit = computed(() => !!filePreviewImage.value && !!metadata.name.trim() && !submitting.value)
 
-const handleFileChange = async (event: Event) => {
-    const files = (event.target as HTMLInputElement).files;
-    if (!files || files.length === 0) return
+async function handleFileChange(event: Event) {
+    const files = (event.target as HTMLInputElement).files
+    if (!files || files.length === 0)
+        return
 
     const file = files.item(0)
-    if (!file) return
+    if (!file)
+        return
 
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onload = function (ev) {
-        filePreviewImage.value = ev.target?.result as string;
+        filePreviewImage.value = ev.target?.result as string
     }
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file)
     fileRaw.value = file
-    metadata.name = file.name.replace(/\.[^/.]+$/, "")
+    metadata.name = file.name.replace(/\.[^/.]+$/, '')
     await nextTick()
     cropperRef.value?.refresh()
 }
 
-const rotateLeft = () => {
+function rotateLeft() {
     cropperRef.value?.rotateLeft()
 }
 
-const rotateRight = () => {
+function rotateRight() {
     cropperRef.value?.rotateRight()
 }
 
-const resetCrop = () => {
+function resetCrop() {
     cropperRef.value?.refresh()
 }
 
-const addTag = () => {
+function addTag() {
     const value = tagDraft.value.trim()
-    if (!value) return
+    if (!value)
+        return
     if (!metadata.labels.includes(value)) {
         metadata.labels.push(value)
     }
     tagDraft.value = ''
 }
 
-const applySuggested = (label: string) => {
+function applySuggested(label: string) {
     if (!metadata.labels.includes(label)) {
         metadata.labels.push(label)
     }
 }
 
-const removeTag = (label: string) => {
-    metadata.labels = metadata.labels.filter((item) => item !== label)
+function removeTag(label: string) {
+    metadata.labels = metadata.labels.filter(item => item !== label)
 }
 
-const close = () => {
+function close() {
     emit('update:open', false)
 }
 
-const cleanupPreview = () => {
+function cleanupPreview() {
     if (filePreviewImage.value) {
         URL.revokeObjectURL(filePreviewImage.value)
         filePreviewImage.value = null
@@ -225,7 +130,7 @@ const cleanupPreview = () => {
     fileRaw.value = null
 }
 
-const reset = () => {
+function reset() {
     metadata.name = ''
     metadata.description = ''
     metadata.visibility = defaultVisibility
@@ -237,15 +142,17 @@ const reset = () => {
     }
 }
 
-const submit = async () => {
-    if (!canSubmit.value || !filePreviewImage.value || !fileRaw.value) return
+async function submit() {
+    if (!canSubmit.value || !filePreviewImage.value || !fileRaw.value)
+        return
     submitting.value = true
     try {
         const blob = await new Promise<Blob>((resolve, reject) => {
             cropperRef.value?.getCropBlob((blob: Blob | null) => {
                 if (blob) {
                     resolve(blob)
-                } else {
+                }
+                else {
                     reject(new Error('Failed to crop image'))
                 }
             })
@@ -260,17 +167,146 @@ const submit = async () => {
             formData.append('description', metadata.description.trim())
         }
         formData.append('visibility', metadata.visibility)
-        metadata.labels.forEach((label) => formData.append('labels', label))
+        metadata.labels.forEach(label => formData.append('labels', label))
 
         const result = await props.upload(formData)
         emit('uploaded', result.image)
         close()
-    } finally {
+    }
+    finally {
         submitting.value = false
     }
 }
-
 </script>
+
+<template>
+    <dialog v-if="open" class="modal modal-open">
+        <div class="modal-box max-w-4xl">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4" @click.prevent="close">
+                    ✕
+                </button>
+            </form>
+            <h3 class="font-bold text-xl mb-6 flex items-center gap-3">
+                <span>{{ t('title') }}</span>
+                <span v-if="aspect" class="badge badge-outline">{{ aspect.name }}</span>
+            </h3>
+            <div class="grid gap-8 lg:grid-cols-[2fr,1fr]">
+                <div class="space-y-4">
+                    <div class="flex flex-col gap-4">
+                        <input
+                            ref="fileInput" type="file" accept="image/*"
+                            class="file-input file-input-bordered w-full" @change="handleFileChange"
+                        >
+                        <div
+                            v-if="!filePreviewImage"
+                            class="p-6 border border-dashed rounded-lg text-center text-base-content/60"
+                        >
+                            {{ t('placeholder') }}
+                        </div>
+                        <div v-else class="space-y-3">
+                            <ClientOnly>
+                                <div class="rounded-lg border h-[320px] w-full overflow-hidden">
+                                    <VueCropper
+                                        ref="cropperRef" :img="filePreviewImage" :auto-crop="true" :fixed="true"
+                                        :fixed-number="cropRatio" :center-box="true" :auto-crop-width="cropBox.width"
+                                        :auto-crop-height="cropBox.height" :full="true" :can-scale="true"
+                                        class="h-[320px] w-full"
+                                    />
+                                </div>
+                            </ClientOnly>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="btn btn-sm" type="button" @click="rotateLeft">
+                                    ⟲ {{ t('rotate-left')
+                                    }}
+                                </button>
+                                <button class="btn btn-sm" type="button" @click="rotateRight">
+                                    ⟳ {{ t('rotate-right')
+                                    }}
+                                </button>
+                                <button class="btn btn-sm" type="button" @click="resetCrop">
+                                    {{ t('reset') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="label">
+                            <span class="label-text">{{ t('name') }}</span>
+                        </label>
+                        <input
+                            v-model="metadata.name" type="text" class="input input-bordered w-full"
+                            :placeholder="t('name-placeholder')"
+                        >
+                    </div>
+                    <div>
+                        <label class="label">
+                            <span class="label-text">{{ t('description') }}</span>
+                        </label>
+                        <textarea
+                            v-model="metadata.description" class="textarea textarea-bordered w-full"
+                            :placeholder="t('description-placeholder')" rows="3"
+                        />
+                    </div>
+                    <div>
+                        <label class="label">
+                            <span class="label-text">{{ t('visibility') }}</span>
+                        </label>
+                        <select v-model="metadata.visibility" class="select select-bordered w-full">
+                            <option value="PRIVATE">
+                                {{ t('visibility-private') }}
+                            </option>
+                            <option value="PUBLIC">
+                                {{ t('visibility-public') }}
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label flex justify-between items-center">
+                            <span class="label-text">{{ t('labels') }}</span>
+                            <div class="flex gap-2">
+                                <button
+                                    v-for="suggest in suggestedLabels" :key="suggest" class="btn btn-xs btn-outline"
+                                    type="button" @click="applySuggested(suggest)"
+                                >
+                                    {{ suggest }}
+                                </button>
+                            </div>
+                        </label>
+                        <div class="flex gap-2 mb-2">
+                            <input
+                                v-model="tagDraft" type="text" class="input input-bordered input-sm flex-1"
+                                :placeholder="t('label-placeholder')" @keyup.enter.prevent="addTag"
+                            >
+                            <button class="btn btn-sm btn-primary" type="button" @click="addTag">
+                                {{ t('add') }}
+                            </button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <div v-for="label in metadata.labels" :key="label" class="badge badge-outline gap-2">
+                                <span>{{ label }}</span>
+                                <button type="button" class="btn btn-xs btn-ghost" @click="removeTag(label)">
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-action">
+                <button class="btn btn-ghost" type="button" @click="close">
+                    {{ t('cancel') }}
+                </button>
+                <button class="btn btn-primary" type="button" :disabled="!canSubmit || submitting" @click="submit">
+                    <span v-if="submitting" class="loading loading-spinner" />
+                    <span>{{ t('submit') }}</span>
+                </button>
+            </div>
+        </div>
+    </dialog>
+</template>
 
 <i18n lang="yaml">
 en-GB:

@@ -1,4 +1,4 @@
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin((_nuxtApp) => {
     const leporid = $fetch.create({
         onRequest(context) {
             if (import.meta.server) {
@@ -14,7 +14,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         onResponse(context) {
             const rawData = context.response._data
 
-            if (rawData.code == 200 && rawData.data !== undefined) {
+            if (rawData.code === 200 && rawData.data !== undefined) {
                 context.response._data = rawData.data // unwrap data
             }
 
@@ -31,17 +31,17 @@ export default defineNuxtPlugin((nuxtApp) => {
                     const { addNotification } = useNotificationsStore()
                     addNotification({
                         type: 'error',
-                        message: leporidResp.message
+                        message: leporidResp.message,
                     })
                     Promise.reject(leporidResp) // reject the promise
                 }
             }
-        }
+        },
     })
 
     return {
         provide: {
-            leporid: leporid
-        }
+            leporid,
+        },
     }
 })

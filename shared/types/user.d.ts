@@ -33,4 +33,3 @@ export interface UserResponse {
     /** 用户权限 */
     permissions: string[]
 }
-

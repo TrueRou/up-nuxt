@@ -1,60 +1,3 @@
-<template>
-    <div class="max-w-md mx-auto pt-16">
-        <h1 class="text-3xl font-bold text-center mb-8">{{ t('register') }}</h1>
-
-        <form @submit.prevent="handleRegister" class="space-y-6">
-            <div>
-                <label class="block text-sm font-medium mb-2">{{ t('username') }}</label>
-                <input v-model="form.username" type="text" :placeholder="t('username-placeholder')"
-                    class="input input-bordered w-full" :class="{ 'input-error': ve('username') }" />
-                <p v-if="ve('username')" class="text-error text-sm mt-1">
-                    {{ ve('username') }}
-                </p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium mb-2">{{ t('email') }}</label>
-                <input v-model="form.email" type="email" :placeholder="t('email-placeholder')"
-                    class="input input-bordered w-full" :class="{ 'input-error': ve('email') }" />
-                <p v-if="ve('email')" class="text-error text-sm mt-1">
-                    {{ ve('email') }}
-                </p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium mb-2">{{ t('password') }}</label>
-                <input v-model="form.password" type="password" :placeholder="t('password-placeholder')"
-                    class="input input-bordered w-full" :class="{ 'input-error': ve('password') }" />
-                <p v-if="ve('password')" class="text-error text-sm mt-1">
-                    {{ ve('password') }}
-                </p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium mb-2">{{ t('confirm-password') }}</label>
-                <input v-model="form.confirmPassword" type="password" :placeholder="t('confirm-password-placeholder')"
-                    class="input input-bordered w-full" :class="{ 'input-error': ve('confirmPassword') }" />
-                <p v-if="ve('confirmPassword')" class="text-error text-sm mt-1">
-                    {{ ve('confirmPassword') }}
-                </p>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-full">
-                {{ t('register') }}
-            </button>
-        </form>
-
-        <hr class="my-8">
-
-        <p class="text-center text-sm">
-            {{ t('have-account') }}
-            <NuxtLink to="/auth/login" class="link link-primary">
-                {{ t('login') }}
-            </NuxtLink>
-        </p>
-    </div>
-</template>
-
 <script setup lang="ts">
 import { z } from 'zod'
 
@@ -78,8 +21,8 @@ const registerSchema = z.object({
     username: z.string().min(3, t('username-min-length')),
     email: z.email(),
     password: z.string().min(6, t('password-min-length')),
-    confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
+    confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
     message: t('password-mismatch'),
     path: ['confirmPassword'],
 })
@@ -88,32 +31,33 @@ const form = reactive<RegisterForm>({
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
 })
 
 const { validate, ve } = useFormValidation(registerSchema, form)
 
-const handleRegister = async () => {
-    if (!validate()) return
+async function handleRegister() {
+    if (!validate())
+        return
 
     const requestData: UserRegisterRequest = {
         username: form.username,
         password: form.password,
-        email: form.email
+        email: form.email,
     }
 
     await useNuxtApp().$leporid('/api/auth/register', {
         method: 'POST',
         body: requestData,
         showSuccessToast: true,
-        successMessage: t('register-success')
+        successMessage: t('register-success'),
     })
 
     await useNuxtApp().$leporid('/api/auth/login', {
         method: 'POST',
         body: form,
         showSuccessToast: true,
-        successMessage: t('login-success')
+        successMessage: t('login-success'),
     })
 
     await authStore.fetch()
@@ -121,9 +65,76 @@ const handleRegister = async () => {
 }
 
 useHead({
-    title: t('register')
+    title: t('register'),
 })
 </script>
+
+<template>
+    <div class="max-w-md mx-auto pt-16">
+        <h1 class="text-3xl font-bold text-center mb-8">
+            {{ t('register') }}
+        </h1>
+
+        <form class="space-y-6" @submit.prevent="handleRegister">
+            <div>
+                <label class="block text-sm font-medium mb-2">{{ t('username') }}</label>
+                <input
+                    v-model="form.username" type="text" :placeholder="t('username-placeholder')"
+                    class="input input-bordered w-full" :class="{ 'input-error': ve('username') }"
+                >
+                <p v-if="ve('username')" class="text-error text-sm mt-1">
+                    {{ ve('username') }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">{{ t('email') }}</label>
+                <input
+                    v-model="form.email" type="email" :placeholder="t('email-placeholder')"
+                    class="input input-bordered w-full" :class="{ 'input-error': ve('email') }"
+                >
+                <p v-if="ve('email')" class="text-error text-sm mt-1">
+                    {{ ve('email') }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">{{ t('password') }}</label>
+                <input
+                    v-model="form.password" type="password" :placeholder="t('password-placeholder')"
+                    class="input input-bordered w-full" :class="{ 'input-error': ve('password') }"
+                >
+                <p v-if="ve('password')" class="text-error text-sm mt-1">
+                    {{ ve('password') }}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">{{ t('confirm-password') }}</label>
+                <input
+                    v-model="form.confirmPassword" type="password" :placeholder="t('confirm-password-placeholder')"
+                    class="input input-bordered w-full" :class="{ 'input-error': ve('confirmPassword') }"
+                >
+                <p v-if="ve('confirmPassword')" class="text-error text-sm mt-1">
+                    {{ ve('confirmPassword') }}
+                </p>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">
+                {{ t('register') }}
+            </button>
+        </form>
+
+        <hr class="my-8">
+
+        <p class="text-center text-sm">
+            {{ t('have-account') }}
+            <NuxtLink to="/auth/login" class="link link-primary">
+                {{ t('login') }}
+            </NuxtLink>
+        </p>
+    </div>
+</template>
 
 <i18n lang="yaml">
 en-GB:

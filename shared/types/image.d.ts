@@ -4,7 +4,7 @@
 export enum ImageVisibility {
     DELETED = 'DELETED',
     PRIVATE = 'PRIVATE',
-    PUBLIC = 'PUBLIC'
+    PUBLIC = 'PUBLIC',
 }
 
 /**

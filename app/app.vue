@@ -1,9 +1,9 @@
 <template>
-  <div>
-    <NuxtPage />
-    <ClientOnly>
-      <NuxtLoadingIndicator />
-      <AppNotification />
-    </ClientOnly>
-  </div>
+    <div>
+        <NuxtPage />
+        <ClientOnly>
+            <NuxtLoadingIndicator />
+            <AppNotification />
+        </ClientOnly>
+    </div>
 </template>

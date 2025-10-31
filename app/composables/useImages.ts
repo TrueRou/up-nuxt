@@ -14,14 +14,14 @@ interface UploadResult {
     image: ImageResponse
 }
 
-const unwrapPayload = <T>(payload: T | { data: T }): T => {
+function unwrapPayload<T>(payload: T | { data: T }): T {
     if (payload && typeof payload === 'object' && 'data' in (payload as Record<string, unknown>)) {
         return (payload as { data: T }).data
     }
     return payload as T
 }
 
-export const useImages = (options: UseImagesOptions) => {
+export function useImages(options: UseImagesOptions) {
     const { $leporid } = useNuxtApp()
 
     const aspect = shallowRef<ImageAspect | null>(null)
@@ -39,7 +39,7 @@ export const useImages = (options: UseImagesOptions) => {
             return aspect.value
         }
         const response = await $leporid<ImageAspect | { data: ImageAspect }>(`/api/images/aspects/${currentAspectId.value}`, {
-            method: 'GET'
+            method: 'GET',
         })
         aspect.value = unwrapPayload<ImageAspect>(response)
         return aspect.value
@@ -63,12 +63,12 @@ export const useImages = (options: UseImagesOptions) => {
                 aspect_id: currentAspectId.value,
                 page_number: pageNumber.value,
                 page_size: pageSize.value,
-                label: activeLabel.value ?? undefined
+                label: activeLabel.value ?? undefined,
             }
 
             const response = await $leporid<ImageSearchResponse | { data: ImageSearchResponse }>('/api/images', {
                 method: 'GET',
-                query
+                query,
             })
             const payload = unwrapPayload<ImageSearchResponse>(response)
             images.value = payload.records ?? []
@@ -78,12 +78,14 @@ export const useImages = (options: UseImagesOptions) => {
 
             return {
                 images: images.value,
-                total: total.value
+                total: total.value,
             }
-        } catch (err) {
+        }
+        catch (err) {
             error.value = err as Error
             throw err
-        } finally {
+        }
+        finally {
             loading.value = false
         }
     }
@@ -95,14 +97,14 @@ export const useImages = (options: UseImagesOptions) => {
     const updateImage = async (uuid: string, payload: ImageUpdateRequest) => {
         await $leporid(`/api/images/${uuid}`, {
             method: 'PUT',
-            body: payload
+            body: payload,
         })
         await refresh()
     }
 
     const deleteImage = async (uuid: string) => {
         await $leporid(`/api/images/${uuid}`, {
-            method: 'DELETE'
+            method: 'DELETE',
         })
         // 如果当前页删除了最后一张图片且不是第一页，则回退一页以保证列表不空
         if (images.value.length <= 1 && pageNumber.value > 1) {
@@ -114,7 +116,7 @@ export const useImages = (options: UseImagesOptions) => {
     const uploadImage = async (formData: FormData): Promise<UploadResult> => {
         const response = await $leporid<ImageResponse | { data: ImageResponse }>('/api/images', {
             method: 'POST',
-            body: formData
+            body: formData,
         })
         const created = unwrapPayload<ImageResponse>(response)
         await refresh()
@@ -124,12 +126,12 @@ export const useImages = (options: UseImagesOptions) => {
     const availableLabels = computed(() => {
         const labelSet = new Set<string>()
         images.value.forEach((image) => {
-            image.labels?.forEach((label) => labelSet.add(label))
+            image.labels?.forEach(label => labelSet.add(label))
         })
         return Array.from(labelSet)
     })
 
-    const customImages = computed(() => images.value.filter((image) => image.visibility === 'PRIVATE'))
+    const customImages = computed(() => images.value.filter(image => image.visibility === 'PRIVATE'))
 
     const setAspectId = (aspectId: string) => {
         if (currentAspectId.value !== aspectId) {
@@ -156,6 +158,6 @@ export const useImages = (options: UseImagesOptions) => {
         uploadImage,
         availableLabels,
         customImages,
-        setAspectId
+        setAspectId,
     }
 }
