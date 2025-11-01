@@ -16,7 +16,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const cropperRef = useTemplateRef<InstanceType<typeof VueCropper>>('cropperRef')
+const cropper = useTemplateRef<InstanceType<typeof VueCropper>>('cropperRef')
 const fileInput = ref<HTMLInputElement | null>(null)
 const filePreviewImage = ref<string | null>(null)
 const fileRaw = ref<File | null>(null)
@@ -83,19 +83,19 @@ async function handleFileChange(event: Event) {
     fileRaw.value = file
     metadata.name = file.name.replace(/\.[^/.]+$/, '')
     await nextTick()
-    cropperRef.value?.refresh()
+    cropper.value?.refresh()
 }
 
 function rotateLeft() {
-    cropperRef.value?.rotateLeft()
+    cropper.value?.rotateLeft()
 }
 
 function rotateRight() {
-    cropperRef.value?.rotateRight()
+    cropper.value?.rotateRight()
 }
 
 function resetCrop() {
-    cropperRef.value?.refresh()
+    cropper.value?.refresh()
 }
 
 function addTag() {
@@ -148,7 +148,7 @@ async function submit() {
     submitting.value = true
     try {
         const blob = await new Promise<Blob>((resolve, reject) => {
-            cropperRef.value?.getCropBlob((blob: Blob | null) => {
+            cropper.value?.getCropBlob((blob: Blob | null) => {
                 if (blob) {
                     resolve(blob)
                 }
@@ -208,7 +208,7 @@ async function submit() {
                             <ClientOnly>
                                 <div class="rounded-lg border h-[320px] w-full overflow-hidden">
                                     <VueCropper
-                                        ref="cropperRef" :img="filePreviewImage" :auto-crop="true" :fixed="true"
+                                        ref="cropper" :img="filePreviewImage" :auto-crop="true" :fixed="true"
                                         :fixed-number="cropRatio" :center-box="true" :auto-crop-width="cropBox.width"
                                         :auto-crop-height="cropBox.height" :full="true" :can-scale="true"
                                         class="h-[320px] w-full"

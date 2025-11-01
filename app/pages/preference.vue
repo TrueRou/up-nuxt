@@ -99,43 +99,36 @@ watch(
     { immediate: true },
 )
 
-type ImageFieldKey = 'character' | 'mask' | 'background' | 'frame' | 'passname'
-type ImageFieldName
-    = | 'characterId'
-        | 'maskId'
-        | 'backgroundId'
-        | 'frameId'
-        | 'passnameId'
+type ImageMapKey = 'character' | 'mask' | 'background' | 'frame'
 
-const imageTarget = ref<ImageFieldKey | null>(null)
+interface ImageMapValue {
+    aspect: string
+    fieldKey: keyof PreferenceForm
+}
+
+const imageMap: Record<ImageMapKey, ImageMapValue> = {
+    character: {
+        aspect: 'id-1-ff',
+        fieldKey: 'characterId',
+    },
+    mask: {
+        aspect: 'id-1-ff',
+        fieldKey: 'maskId',
+    },
+    background: {
+        aspect: 'id-1-ff',
+        fieldKey: 'backgroundId',
+    },
+    frame: {
+        aspect: 'id-1-ff',
+        fieldKey: 'frameId',
+    },
+}
+
+const imageTarget = ref<ImageMapKey | null>(null)
 const selectorOpen = ref(false)
 
-const imageFieldMap: Record<ImageFieldKey, ImageFieldName> = {
-    character: 'characterId',
-    mask: 'maskId',
-    background: 'backgroundId',
-    frame: 'frameId',
-    passname: 'passnameId',
-}
-
-// 使用后端预设的图片比例 ID，保持与服务端约定一致
-const aspectMap: Record<ImageFieldKey, string> = {
-    character: 'character',
-    mask: 'mask',
-    background: 'background',
-    frame: 'frame',
-    passname: 'passname',
-}
-
-const imageKeys: ImageFieldKey[] = [
-    'character',
-    'mask',
-    'background',
-    'frame',
-    'passname',
-]
-
-function openImageSelector(key: ImageFieldKey) {
+function openImageSelector(key: ImageMapKey) {
     imageTarget.value = key
     selectorOpen.value = true
 }
@@ -150,8 +143,8 @@ function handleSelectorVisibility(value: boolean) {
 function handleImageSelect(image: ImageResponse) {
     if (!imageTarget.value)
         return
-    const field = imageFieldMap[imageTarget.value]
-    preferenceForm[field] = image.id
+    const field = imageMap[imageTarget.value].fieldKey
+    Object.assign(preferenceForm, { [field]: image.id })
 }
 
 const selectorTitle = computed(() => {
@@ -164,12 +157,16 @@ const selectorTitle = computed(() => {
 const selectorConfirmLabel = computed(() => t('actions.use-image'))
 
 const imageAspectId = computed(() =>
-    imageTarget.value ? aspectMap[imageTarget.value] : '',
+    imageTarget.value ? imageMap[imageTarget.value].aspect : '',
 )
 
+watch(imageAspectId, (newAspect) => {
+    console.warn('Image aspect changed:', newAspect)
+})
+
 const imageCardItems = computed(() =>
-    imageKeys.map((key) => {
-        const field = imageFieldMap[key]
+    Object.keys(imageMap).map(key => key as ImageMapKey).map((key) => {
+        const field = imageMap[key].fieldKey
         const raw = preferenceForm[field] as string | undefined
         return {
             key,
@@ -250,7 +247,8 @@ async function handleSave() {
     <div class="min-h-screen bg-base-200">
         <ImageSelector
             v-if="imageTarget" :open="selectorOpen" :aspect-id="imageAspectId" :title="selectorTitle"
-            :confirm-label="selectorConfirmLabel" @update:open="handleSelectorVisibility" @select="handleImageSelect"
+            :confirm-label="selectorConfirmLabel" :primary-filters="[{ label: 'cur', value: imageTarget }]" @update:open="handleSelectorVisibility"
+            @select="handleImageSelect"
         />
         <div class="mx-auto w-full max-w-6xl px-4 py-8 lg:py-10">
             <div v-if="isInitialLoading" class="flex flex-col items-center gap-4 py-16 text-base-content/60">

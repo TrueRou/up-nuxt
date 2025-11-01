@@ -114,7 +114,7 @@ const displayedImages = computed(() => {
 
 const imageKey = (image: ImageResponse) => image.id
 
-const imageUrl = (image: ImageResponse) => img(image.metadata_id ?? image.file_name)
+const imageUrl = (image: ImageResponse) => img(image.id)
 
 function isSelected(image: ImageResponse) {
     if (!selectedImage.value)
@@ -246,6 +246,7 @@ watch(() => props.open, async (value) => {
 })
 
 watch(() => props.aspectId, async (newAspect, oldAspect) => {
+    console.warn('Aspect changed:', { newAspect, oldAspect })
     if (newAspect === oldAspect)
         return
     setAspectId(newAspect)
@@ -256,7 +257,7 @@ watch(() => props.aspectId, async (newAspect, oldAspect) => {
     searchState.custom = ''
     await fetchAspect()
     await list({ pageNumber: 1 })
-})
+}, { immediate: true })
 </script>
 
 <template>
@@ -337,7 +338,7 @@ watch(() => props.aspectId, async (newAspect, oldAspect) => {
                                 {{ t('actions.upload') }}
                             </button>
                         </div>
-                        <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        <div v-else class="grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-5">
                             <div
                                 v-if="activeSecondary === 'custom'"
                                 class="card border-dashed border-2 flex items-center justify-center cursor-pointer hover:border-primary"

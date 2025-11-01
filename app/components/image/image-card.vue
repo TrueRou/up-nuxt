@@ -95,7 +95,7 @@ function formatDate(value: string) {
     >
         <div class="relative">
             <div class="w-full overflow-hidden" :style="aspectStyle">
-                <img :src="imageUrl" :alt="image.name" class="h-full w-full object-cover" loading="lazy">
+                <img :src="imageUrl" :alt="image.name" class="w-full object-cover" loading="lazy">
             </div>
             <div v-if="selected" class="badge badge-primary gap-2 absolute top-3 right-3">
                 <span>{{ t('selected') }}</span>
